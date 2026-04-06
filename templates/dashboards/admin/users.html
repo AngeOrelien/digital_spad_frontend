@@ -1,0 +1,682 @@
+{% extends "layout/dashboard_base.html" %}
+
+{% block title %}Gestion Utilisateurs{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex mt-3 mb-2" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{{ url_for('admin_dashboard') }}"
+                class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-spad-600">
+                <i class="mr-2 fas fa-home"></i>
+                Dashboard
+            </a>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i class="mx-1 text-gray-400 fas fa-chevron-right"></i>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Gestion des Utilisateurs</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block page_title %}
+<div class="py-4 md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <i class="mr-2 text-spad-600 fas fa-users-cog"></i>
+            Gestion des Utilisateurs
+        </h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Créer, modifier et gérer les comptes utilisateurs
+        </p>
+    </div>
+    <div class="flex mt-4 space-x-3 md:mt-0 md:ml-4">
+        <button type="button" onclick="exportUsers()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="mr-2 fas fa-download"></i>
+            Exporter
+        </button>
+        <button type="button" onclick="showAddUserModal()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-spad-700 hover:bg-spad-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="mr-2 fas fa-user-plus"></i>
+            Nouvel utilisateur
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filtres -->
+<div class="p-6 mb-6 bg-white rounded-lg shadow">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div>
+            <label for="search" class="block mb-2 text-sm font-medium text-gray-700">Recherche</label>
+            <input type="text" id="search" placeholder="Nom, email, rôle..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                onkeyup="filterUsers()">
+        </div>
+        <div>
+            <label for="roleFilter" class="block mb-2 text-sm font-medium text-gray-700">Rôle</label>
+            <select id="roleFilter" onchange="filterUsers()"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">Tous les rôles</option>
+                <option value="patient">Patient</option>
+                <option value="prestataire">Prestataire</option>
+                <option value="medecin">Médecin</option>
+                <option value="chef_secteur">Chef de secteur</option>
+                <option value="administrateur">Administrateur</option>
+            </select>
+        </div>
+        <div>
+            <label for="statusFilter" class="block mb-2 text-sm font-medium text-gray-700">Statut</label>
+            <select id="statusFilter" onchange="filterUsers()"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">Tous les statuts</option>
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button onclick="resetFilters()"
+                class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="mr-2 fas fa-redo"></i>Réinitialiser
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Tableau des utilisateurs -->
+<div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    Liste des utilisateurs
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    <span id="userCount">0</span> utilisateur(s) trouvé(s)
+                </p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="refreshUsers()"
+                    class="p-2 text-gray-600 rounded-lg hover:text-blue-600 hover:bg-blue-50">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Utilisateur
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Rôle
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Email
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Téléphone
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Statut
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Dernière connexion
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- Les utilisateurs seront chargés ici par JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6">
+            <div class="text-sm text-gray-500">
+                Affichage <span id="startIndex">1</span>-<span id="endIndex">10</span> de <span id="totalUsers">0</span>
+            </div>
+            <div class="flex space-x-2">
+                <button id="prevPage" onclick="changePage(-1)" disabled
+                    class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-700">Page <span id="currentPage">1</span></span>
+                </div>
+                <button id="nextPage" onclick="changePage(1)" disabled
+                    class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- État vide -->
+        <div id="emptyState" class="hidden py-12 text-center">
+            <i class="mb-4 text-5xl text-gray-300 fas fa-users"></i>
+            <h3 class="mb-2 text-lg font-medium text-gray-900">Aucun utilisateur trouvé</h3>
+            <p class="mb-6 text-gray-500">Commencez par créer votre premier utilisateur.</p>
+            <button onclick="showAddUserModal()"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700">
+                <i class="mr-2 fas fa-user-plus"></i>
+                Ajouter un utilisateur
+            </button>
+        </div>
+
+        <!-- État chargement -->
+        <div id="loadingState" class="py-12 text-center">
+            <div class="inline-block">
+                <i class="mb-4 text-3xl text-blue-600 fas fa-spinner fa-spin"></i>
+                <p class="text-gray-500">Chargement des utilisateurs...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajout/Modification Utilisateur -->
+<div id="userModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-500 bg-opacity-75">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Nouvel utilisateur</h3>
+        </div>
+        <form id="userForm" class="p-6 space-y-6">
+            <input type="hidden" id="userId">
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="modalFirstName" class="block text-sm font-medium text-gray-700">Prénom *</label>
+                    <input type="text" id="modalFirstName" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="modalLastName" class="block text-sm font-medium text-gray-700">Nom *</label>
+                    <input type="text" id="modalLastName" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label for="modalEmail" class="block text-sm font-medium text-gray-700">Email *</label>
+                <input type="email" id="modalEmail" required
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div>
+                <label for="modalUsername" class="block text-sm font-medium text-gray-700">Nom d'utilisateur *</label>
+                <input type="text" id="modalUsername" required
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="modalPhone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                    <input type="tel" id="modalPhone"
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="modalRole" class="block text-sm font-medium text-gray-700">Rôle *</label>
+                    <select id="modalRole" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <option value="patient">Patient</option>
+                        <option value="prestataire">Prestataire</option>
+                        <option value="medecin">Médecin</option>
+                        <option value="chef_secteur">Chef de secteur</option>
+                        <option value="administrateur">Administrateur</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="passwordFields">
+                <div>
+                    <label for="modalPassword" class="block text-sm font-medium text-gray-700">Mot de passe *</label>
+                    <input type="password" id="modalPassword"
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <p class="mt-1 text-xs text-gray-500">Laissez vide pour ne pas modifier</p>
+                </div>
+            </div>
+
+            <div>
+                <label for="modalStatus" class="block text-sm font-medium text-gray-700">Statut</label>
+                <select id="modalStatus"
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="true">Actif</option>
+                    <option value="false">Inactif</option>
+                </select>
+            </div>
+
+            <!-- Erreur -->
+            <div id="modalError" class="hidden p-4 border-l-4 border-red-400 bg-red-50">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="text-red-400 fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p id="modalErrorText" class="text-sm text-red-700"></p>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="flex justify-end px-6 py-4 space-x-3 border-t border-gray-200">
+            <button type="button" onclick="hideUserModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Annuler
+            </button>
+            <button type="button" onclick="saveUser()" id="modalSaveBtn"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Enregistrer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmation Suppression -->
+<div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-500 bg-opacity-75">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-xl">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                <i class="text-xl text-red-600 fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="mt-3 text-lg font-medium text-center text-gray-900">Confirmer la suppression</h3>
+            <p class="mt-2 text-sm text-center text-gray-500">
+                Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.
+            </p>
+            <div class="flex justify-center mt-6 space-x-3">
+                <button type="button" onclick="hideDeleteModal()"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Annuler
+                </button>
+                <button type="button" onclick="confirmDeleteUser()"
+                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700">
+                    Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables globales
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let allUsers = [];
+    let userToDelete = null;
+
+    // Charger les utilisateurs
+    async function loadUsers() {
+        showLoading();
+
+        try {
+            const response = await fetch('/api/utilisateurs/');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    allUsers = data.resultats || [];
+                    displayUsers();
+                } else {
+                    showError('Erreur lors du chargement des utilisateurs');
+                }
+            } else {
+                showError('Erreur serveur lors du chargement des utilisateurs');
+            }
+        } catch (error) {
+            showError('Erreur de connexion au serveur');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Afficher les utilisateurs
+    function displayUsers() {
+        const search = document.getElementById('search').value.toLowerCase();
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        // Filtrer les utilisateurs
+        let filteredUsers = allUsers.filter(user => {
+            const matchesSearch =
+                (user.nom_utilisateur && user.nom_utilisateur.toLowerCase().includes(search)) ||
+                (user.email && user.email.toLowerCase().includes(search)) ||
+                (user.prenom && user.prenom.toLowerCase().includes(search)) ||
+                (user.nom && user.nom.toLowerCase().includes(search));
+
+            const matchesRole = !roleFilter || user.role === roleFilter;
+            const matchesStatus = !statusFilter ||
+                (statusFilter === 'active' ? user.est_actif : !user.est_actif);
+
+            return matchesSearch && matchesRole && matchesStatus;
+        });
+
+        // Mettre à jour le compteur
+        document.getElementById('userCount').textContent = filteredUsers.length;
+        document.getElementById('totalUsers').textContent = filteredUsers.length;
+
+        // Pagination
+        const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, filteredUsers.length);
+        const pageUsers = filteredUsers.slice(startIndex, endIndex);
+
+        // Mettre à jour les infos de pagination
+        document.getElementById('startIndex').textContent = startIndex + 1;
+        document.getElementById('endIndex').textContent = endIndex;
+        document.getElementById('currentPage').textContent = currentPage;
+        document.getElementById('prevPage').disabled = currentPage <= 1;
+        document.getElementById('nextPage').disabled = currentPage >= totalPages;
+
+        // Afficher ou masquer l'état vide
+        if (filteredUsers.length === 0) {
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('usersTableBody').innerHTML = '';
+        } else {
+            document.getElementById('emptyState').classList.add('hidden');
+            renderUsersTable(pageUsers);
+        }
+    }
+
+    // Rendre le tableau des utilisateurs
+    function renderUsersTable(users) {
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+
+            // Formatage de la date
+            const lastLogin = user.derniere_connexion ?
+                new Date(user.derniere_connexion).toLocaleDateString('fr-FR') :
+                'Jamais';
+
+            // Rôle en français
+            const roleMap = {
+                'patient': 'Patient',
+                'prestataire': 'Prestataire',
+                'medecin': 'Médecin',
+                'chef_secteur': 'Chef de secteur',
+                'administrateur': 'Administrateur'
+            };
+
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 mr-3 rounded-full bg-spad-100">
+                            <span class="font-bold text-spad-600">${(user.prenom || 'U')[0].toUpperCase()}</span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900">${user.prenom || ''} ${user.nom || ''}</div>
+                            <div class="text-sm text-gray-500">${user.nom_utilisateur || ''}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                        ${user.role === 'administrateur' ? 'bg-purple-100 text-purple-800' :
+                    user.role === 'medecin' ? 'bg-blue-100 text-blue-800' :
+                        user.role === 'chef_secteur' ? 'bg-yellow-100 text-yellow-800' :
+                            user.role === 'prestataire' ? 'bg-green-100 text-green-800' :
+                                'bg-gray-100 text-gray-800'}">
+                        ${roleMap[user.role] || user.role}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                    ${user.email || ''}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                    ${user.telephone || 'Non renseigné'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                        ${user.est_actif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${user.est_actif ? 'Actif' : 'Inactif'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                    ${lastLogin}
+                </td>
+                <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                    <button onclick="editUser(${user.id})" class="mr-3 text-blue-600 hover:text-blue-900">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="showDeleteUserModal(${user.id})" class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // Filtrer les utilisateurs
+    function filterUsers() {
+        currentPage = 1;
+        displayUsers();
+    }
+
+    // Réinitialiser les filtres
+    function resetFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('roleFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        filterUsers();
+    }
+
+    // Changer de page
+    function changePage(direction) {
+        currentPage += direction;
+        displayUsers();
+    }
+
+    // Rafraîchir les utilisateurs
+    function refreshUsers() {
+        loadUsers();
+    }
+
+    // Exporter les utilisateurs
+    function exportUsers() {
+        // Implémentation simplifiée - à compléter
+        alert('Exportation des utilisateurs (fonctionnalité à implémenter)');
+    }
+
+    // Afficher le modal d'ajout
+    function showAddUserModal() {
+        document.getElementById('modalTitle').textContent = 'Nouvel utilisateur';
+        document.getElementById('userId').value = '';
+        document.getElementById('modalFirstName').value = '';
+        document.getElementById('modalLastName').value = '';
+        document.getElementById('modalEmail').value = '';
+        document.getElementById('modalUsername').value = '';
+        document.getElementById('modalPhone').value = '';
+        document.getElementById('modalRole').value = 'patient';
+        document.getElementById('modalPassword').value = '';
+        document.getElementById('modalPassword').required = true;
+        document.getElementById('modalStatus').value = 'true';
+        document.getElementById('modalError').classList.add('hidden');
+
+        document.getElementById('userModal').classList.remove('hidden');
+    }
+
+    // Modifier un utilisateur
+    async function editUser(userId) {
+        try {
+            const response = await fetch(`/api/utilisateurs/${userId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const user = data.resultat;
+
+                    document.getElementById('modalTitle').textContent = 'Modifier l\'utilisateur';
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('modalFirstName').value = user.prenom || '';
+                    document.getElementById('modalLastName').value = user.nom || '';
+                    document.getElementById('modalEmail').value = user.email || '';
+                    document.getElementById('modalUsername').value = user.nom_utilisateur || '';
+                    document.getElementById('modalPhone').value = user.telephone || '';
+                    document.getElementById('modalRole').value = user.role || 'patient';
+                    document.getElementById('modalPassword').value = '';
+                    document.getElementById('modalPassword').required = false;
+                    document.getElementById('modalStatus').value = user.est_actif ? 'true' : 'false';
+                    document.getElementById('modalError').classList.add('hidden');
+
+                    document.getElementById('userModal').classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    // Cacher le modal utilisateur
+    function hideUserModal() {
+        document.getElementById('userModal').classList.add('hidden');
+    }
+
+    // Sauvegarder l'utilisateur
+    async function saveUser() {
+        const userId = document.getElementById('userId').value;
+        const isEdit = !!userId;
+
+        const userData = {
+            prenom: document.getElementById('modalFirstName').value,
+            nom: document.getElementById('modalLastName').value,
+            email: document.getElementById('modalEmail').value,
+            nom_utilisateur: document.getElementById('modalUsername').value,
+            telephone: document.getElementById('modalPhone').value,
+            role: document.getElementById('modalRole').value,
+            est_actif: document.getElementById('modalStatus').value === 'true',
+            mot_de_passe: document.getElementById('modalPassword').value || undefined
+        };
+
+        // Désactiver le bouton pendant la sauvegarde
+        const saveBtn = document.getElementById('modalSaveBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i>Enregistrement...';
+
+        try {
+            let response;
+            if (isEdit) {
+                response = await fetch(`/api/utilisateurs/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+            } else {
+                response = await fetch('/api/utilisateurs/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    hideUserModal();
+                    loadUsers(); // Recharger la liste
+                    showSuccess(isEdit ? 'Utilisateur modifié avec succès' : 'Utilisateur créé avec succès');
+                } else {
+                    showModalError(data.message || 'Erreur lors de la sauvegarde');
+                }
+            } else {
+                showModalError('Erreur serveur lors de la sauvegarde');
+            }
+        } catch (error) {
+            showModalError('Erreur de connexion au serveur');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = 'Enregistrer';
+        }
+    }
+
+    // Afficher le modal de suppression
+    function showDeleteUserModal(userId) {
+        userToDelete = userId;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    // Cacher le modal de suppression
+    function hideDeleteModal() {
+        userToDelete = null;
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+
+    // Confirmer la suppression
+    async function confirmDeleteUser() {
+        if (!userToDelete) return;
+
+        try {
+            const response = await fetch(`/api/utilisateurs/${userToDelete}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    hideDeleteModal();
+                    loadUsers(); // Recharger la liste
+                    showSuccess('Utilisateur supprimé avec succès');
+                } else {
+                    showError('Erreur lors de la suppression');
+                }
+            } else {
+                showError('Erreur serveur lors de la suppression');
+            }
+        } catch (error) {
+            showError('Erreur de connexion au serveur');
+        }
+    }
+
+    // Afficher l'état de chargement
+    function showLoading() {
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('usersTableBody').innerHTML = '';
+    }
+
+    // Cacher l'état de chargement
+    function hideLoading() {
+        document.getElementById('loadingState').classList.add('hidden');
+    }
+
+    // Afficher une erreur dans le modal
+    function showModalError(message) {
+        const errorDiv = document.getElementById('modalError');
+        const errorText = document.getElementById('modalErrorText');
+        errorText.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    // Afficher un message de succès
+    function showSuccess(message) {
+        // Implémentation simplifiée - à améliorer
+        alert(message);
+    }
+
+    // Afficher une erreur
+    function showError(message) {
+        // Implémentation simplifiée - à améliorer
+        alert('Erreur: ' + message);
+    }
+
+    // Charger les utilisateurs au démarrage
+    document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
+{% endblock %}

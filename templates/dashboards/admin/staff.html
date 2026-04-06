@@ -1,0 +1,1407 @@
+{% extends "layout/dashboard_base.html" %}
+
+{% block title %}Gestion Personnel{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex mt-3 mb-2" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{{ url_for('admin_dashboard') }}"
+                class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-spad-600">
+                <i class="mr-2 fas fa-home"></i>
+                Dashboard
+            </a>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i class="mx-1 text-gray-400 fas fa-chevron-right"></i>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Gestion du Personnel</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block page_title %}
+<div class="py-4 md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <i class="mr-2 text-spad-600 fas fa-user-tie"></i>
+            Gestion du Personnel
+        </h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Gérer les prestataires, médecins et chefs de secteur
+        </p>
+    </div>
+    <div class="flex mt-4 space-x-3 md:mt-0 md:ml-4">
+        <button type="button" onclick="exportStaff()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="mr-2 fas fa-download"></i>
+            Exporter
+        </button>
+        <button type="button" onclick="showAddStaffModal()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-spad-700 hover:bg-spad-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="mr-2 fas fa-user-plus"></i>
+            Nouveau membre
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Section Management App -->
+<div class="p-6 mb-6 bg-white rounded-lg shadow">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h3 class="text-lg font-medium text-gray-900">
+                <i class="mr-2 text-spad-600 fas fa-external-link-alt"></i>
+                Management Application
+            </h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Accédez à l'application de gestion complète
+            </p>
+        </div>
+        <a href="https://management.spadcamerounov.org" target="_blank"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-spad-700 hover:bg-spad-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-spad-500">
+            <i class="mr-2 fas fa-external-link-alt"></i>
+            Ouvrir Management App
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 mt-4 md:grid-cols-3">
+        <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <div class="flex items-center">
+                <div class="flex items-center justify-center w-10 h-10 mr-3 bg-blue-100 rounded-full">
+                    <i class="text-blue-600 fas fa-user-md"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Gestion Médicale</h4>
+                    <p class="text-sm text-gray-500">Dossiers patients et consultations</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <div class="flex items-center">
+                <div class="flex items-center justify-center w-10 h-10 mr-3 bg-green-100 rounded-full">
+                    <i class="text-green-600 fas fa-calendar-alt"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Planification</h4>
+                    <p class="text-sm text-gray-500">Agenda et rendez-vous</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <div class="flex items-center">
+                <div class="flex items-center justify-center w-10 h-10 mr-3 bg-purple-100 rounded-full">
+                    <i class="text-purple-600 fas fa-chart-line"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900">Rapports</h4>
+                    <p class="text-sm text-gray-500">Statistiques et analyses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onglets des catégories -->
+<div class="mb-6">
+    <div class="border-b border-gray-200">
+        <nav class="flex -mb-px space-x-8" aria-label="Tabs">
+            <button id="tab-all" class="px-1 py-4 text-sm font-medium border-b-2 tab-button" onclick="changeTab('all')">
+                <span class="flex items-center">
+                    <i class="mr-2 fas fa-users"></i>
+                    Tout le personnel
+                    <span id="tab-all-count"
+                        class="ml-2 py-0.5 px-2 text-xs rounded-full bg-gray-100 text-gray-600">0</span>
+                </span>
+            </button>
+            <button id="tab-prestataires" class="px-1 py-4 text-sm font-medium border-b-2 tab-button"
+                onclick="changeTab('prestataire')">
+                <span class="flex items-center">
+                    <i class="mr-2 fas fa-hands-helping"></i>
+                    Prestataires
+                    <span id="tab-prestataires-count"
+                        class="ml-2 py-0.5 px-2 text-xs rounded-full bg-green-100 text-green-600">0</span>
+                </span>
+            </button>
+            <button id="tab-medecins" class="px-1 py-4 text-sm font-medium border-b-2 tab-button"
+                onclick="changeTab('medecin')">
+                <span class="flex items-center">
+                    <i class="mr-2 fas fa-user-md"></i>
+                    Médecins
+                    <span id="tab-medecins-count"
+                        class="ml-2 py-0.5 px-2 text-xs rounded-full bg-blue-100 text-blue-600">0</span>
+                </span>
+            </button>
+            <button id="tab-chefs" class="px-1 py-4 text-sm font-medium border-b-2 tab-button"
+                onclick="changeTab('chef_secteur')">
+                <span class="flex items-center">
+                    <i class="mr-2 fas fa-user-tie"></i>
+                    Chefs de secteur
+                    <span id="tab-chefs-count"
+                        class="ml-2 py-0.5 px-2 text-xs rounded-full bg-yellow-100 text-yellow-600">0</span>
+                </span>
+            </button>
+        </nav>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="p-6 mb-6 bg-white rounded-lg shadow">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-5">
+        <div class="md:col-span-2">
+            <label for="search" class="block mb-2 text-sm font-medium text-gray-700">Recherche</label>
+            <input type="text" id="search" placeholder="Nom, email, spécialité, téléphone..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                onkeyup="filterStaff()">
+        </div>
+        <div>
+            <label for="specialiteFilter" class="block mb-2 text-sm font-medium text-gray-700">Spécialité</label>
+            <select id="specialiteFilter" onchange="filterStaff()"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">Toutes spécialités</option>
+                <option value="médecin_généraliste">Médecin généraliste</option>
+                <option value="infirmier">Infirmier</option>
+                <option value="kinésithérapeute">Kinésithérapeute</option>
+                <option value="aide_soignant">Aide-soignant</option>
+                <option value="administratif">Administratif</option>
+                <option value="autre">Autre</option>
+            </select>
+        </div>
+        <div>
+            <label for="statusFilter" class="block mb-2 text-sm font-medium text-gray-700">Statut</label>
+            <select id="statusFilter" onchange="filterStaff()"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">Tous les statuts</option>
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
+                <option value="vacances">En vacances</option>
+                <option value="congé">En congé</option>
+            </select>
+        </div>
+        <div class="flex items-end space-x-2">
+            <button onclick="resetFilters()"
+                class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="mr-2 fas fa-redo"></i>Réinitialiser
+            </button>
+            <button onclick="showAdvancedFilters()" id="advancedFilterBtn"
+                class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtres avancés (cachés par défaut) -->
+    <div id="advancedFilters" class="hidden pt-4 mt-4 border-t border-gray-200">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+                <label for="dateFrom" class="block mb-2 text-sm font-medium text-gray-700">Date d'embauche
+                    (début)</label>
+                <input type="date" id="dateFrom" onchange="filterStaff()"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div>
+                <label for="dateTo" class="block mb-2 text-sm font-medium text-gray-700">Date d'embauche (fin)</label>
+                <input type="date" id="dateTo" onchange="filterStaff()"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div>
+                <label for="secteurFilter" class="block mb-2 text-sm font-medium text-gray-700">Secteur assigné</label>
+                <select id="secteurFilter" onchange="filterStaff()"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="">Tous les secteurs</option>
+                    <!-- Les secteurs seront chargés dynamiquement -->
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tableau du personnel -->
+<div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-medium leading-6 text-gray-900" id="tableTitle">
+                    Tout le personnel
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    <span id="staffCount">0</span> membre(s) trouvé(s)
+                </p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="refreshStaff()"
+                    class="p-2 text-gray-600 rounded-lg hover:text-blue-600 hover:bg-blue-50">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button onclick="toggleView()" id="viewToggle"
+                    class="p-2 text-gray-600 rounded-lg hover:text-blue-600 hover:bg-blue-50">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue Tableau -->
+    <div id="tableView">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Personnel
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Rôle & Spécialité
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Contact
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Secteur(s)
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Date d'embauche
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Statut
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="staffTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- Le personnel sera chargé ici par JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Vue Cartes (cachée par défaut) -->
+    <div id="cardView" class="hidden p-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="staffCardsContainer">
+            <!-- Cartes du personnel -->
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+        <div class="text-sm text-gray-500">
+            Affichage <span id="startIndex">1</span>-<span id="endIndex">10</span> de <span id="totalStaff">0</span>
+        </div>
+        <div class="flex space-x-2">
+            <button id="prevPage" onclick="changePage(-1)" disabled
+                class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="flex items-center">
+                <span class="text-sm text-gray-700">Page <span id="currentPage">1</span></span>
+            </div>
+            <button id="nextPage" onclick="changePage(1)" disabled
+                class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- État vide -->
+    <div id="emptyState" class="hidden py-12 text-center">
+        <i class="mb-4 text-5xl text-gray-300 fas fa-user-tie"></i>
+        <h3 class="mb-2 text-lg font-medium text-gray-900">Aucun membre trouvé</h3>
+        <p class="mb-6 text-gray-500">Commencez par ajouter votre premier membre du personnel.</p>
+        <button onclick="showAddStaffModal()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-spad-700 hover:bg-spad-800">
+            <i class="mr-2 fas fa-user-plus"></i>
+            Ajouter un membre
+        </button>
+    </div>
+
+    <!-- État chargement -->
+    <div id="loadingState" class="py-12 text-center">
+        <div class="inline-block">
+            <i class="mb-4 text-3xl text-blue-600 fas fa-spinner fa-spin"></i>
+            <p class="text-gray-500">Chargement du personnel...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajout/Modification Personnel -->
+<div id="staffModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-500 bg-opacity-75">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Nouveau membre du personnel</h3>
+        </div>
+        <form id="staffForm" class="p-6 space-y-6">
+            <input type="hidden" id="staffId">
+
+            <!-- Type de personnel -->
+            <div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">Type de personnel *</label>
+                <div class="grid grid-cols-1 gap-4 mt-2 sm:grid-cols-3">
+                    <label
+                        class="relative flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="staffType" value="prestataire" onclick="updateRole(this.value)"
+                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-gray-700">Prestataire</span>
+                            <span class="block text-xs text-gray-500">Infirmier, aide-soignant, etc.</span>
+                        </div>
+                    </label>
+                    <label
+                        class="relative flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="staffType" value="medecin" onclick="updateRole(this.value)"
+                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-gray-700">Médecin</span>
+                            <span class="block text-xs text-gray-500">Médecin traitant</span>
+                        </div>
+                    </label>
+                    <label
+                        class="relative flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="staffType" value="chef_secteur" onclick="updateRole(this.value)"
+                            class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-gray-700">Chef de secteur</span>
+                            <span class="block text-xs text-gray-500">Responsable secteur</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="modalFirstName" class="block text-sm font-medium text-gray-700">Prénom *</label>
+                    <input type="text" id="modalFirstName" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="modalLastName" class="block text-sm font-medium text-gray-700">Nom *</label>
+                    <input type="text" id="modalLastName" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label for="modalEmail" class="block text-sm font-medium text-gray-700">Email *</label>
+                <input type="email" id="modalEmail" required
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div>
+                <label for="modalUsername" class="block text-sm font-medium text-gray-700">Nom d'utilisateur *</label>
+                <input type="text" id="modalUsername" required
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="modalPhone" class="block text-sm font-medium text-gray-700">Téléphone *</label>
+                    <input type="tel" id="modalPhone" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="modalSpecialite"
+                        class="block text-sm font-medium text-gray-700">Spécialité/Fonction</label>
+                    <select id="modalSpecialite"
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <option value="">Sélectionner...</option>
+                        <option value="médecin_généraliste">Médecin généraliste</option>
+                        <option value="infirmier">Infirmier</option>
+                        <option value="kinésithérapeute">Kinésithérapeute</option>
+                        <option value="aide_soignant">Aide-soignant</option>
+                        <option value="administratif">Administratif</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Secteurs assignés (multiple pour chefs de secteur et prestataires) -->
+            <div id="secteursField">
+                <label for="modalSecteurs" class="block text-sm font-medium text-gray-700">Secteur(s) assigné(s)</label>
+                <select id="modalSecteurs" multiple
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <!-- Chargé dynamiquement -->
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs secteurs</p>
+            </div>
+
+            <!-- Date d'embauche -->
+            <div>
+                <label for="modalDateEmbauche" class="block text-sm font-medium text-gray-700">Date d'embauche</label>
+                <input type="date" id="modalDateEmbauche"
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div id="passwordFields">
+                <div>
+                    <label for="modalPassword" class="block text-sm font-medium text-gray-700">Mot de passe *</label>
+                    <input type="password" id="modalPassword"
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <p class="mt-1 text-xs text-gray-500" id="passwordHelp">Laissez vide pour ne pas modifier</p>
+                </div>
+            </div>
+
+            <div>
+                <label for="modalStatus" class="block text-sm font-medium text-gray-700">Statut</label>
+                <select id="modalStatus"
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="active">Actif</option>
+                    <option value="vacances">En vacances</option>
+                    <option value="congé">En congé</option>
+                    <option value="inactive">Inactif</option>
+                </select>
+            </div>
+
+            <!-- Erreur -->
+            <div id="modalError" class="hidden p-4 border-l-4 border-red-400 bg-red-50">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="text-red-400 fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p id="modalErrorText" class="text-sm text-red-700"></p>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="flex justify-end px-6 py-4 space-x-3 border-t border-gray-200">
+            <button type="button" onclick="hideStaffModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Annuler
+            </button>
+            <button type="button" onclick="saveStaff()" id="modalSaveBtn"
+                class="px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md bg-spad-700 hover:bg-spad-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Enregistrer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Vue détaillée -->
+<div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-500 bg-opacity-75">
+    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-medium text-gray-900" id="detailName">Détails du personnel</h3>
+                <button onclick="hideDetailModal()" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="detailContent">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmation Suppression -->
+<div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-500 bg-opacity-75">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-xl">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                <i class="text-xl text-red-600 fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="mt-3 text-lg font-medium text-center text-gray-900">Confirmer la suppression</h3>
+            <p class="mt-2 text-sm text-center text-gray-500">
+                Êtes-vous sûr de vouloir supprimer ce membre du personnel ? Cette action est irréversible.
+            </p>
+            <div class="flex justify-center mt-6 space-x-3">
+                <button type="button" onclick="hideDeleteModal()"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Annuler
+                </button>
+                <button type="button" onclick="confirmDeleteStaff()"
+                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700">
+                    Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables globales
+    let currentPage = 1;
+    const itemsPerPage = 12;
+    let allStaff = [];
+    let filteredStaff = [];
+    let staffToDelete = null;
+    let currentTab = 'all';
+    let isCardView = false;
+    let currentSort = 'name_asc';
+
+    // Charger le personnel
+    async function loadStaff() {
+        showLoading();
+
+        try {
+            // Charger les utilisateurs avec rôles spécifiques
+            const roles = ['prestataire', 'medecin', 'chef_secteur'];
+            const promises = roles.map(role =>
+                fetch(`/api/utilisateurs/role/${role}`).then(r => r.json())
+            );
+
+            const results = await Promise.all(promises);
+
+            allStaff = [];
+            results.forEach((result, index) => {
+                if (result.success && result.resultats) {
+                    // Ajouter le type de personnel
+                    const staffWithType = result.resultats.map(user => ({
+                        ...user,
+                        personnel_type: roles[index]
+                    }));
+                    allStaff = [...allStaff, ...staffWithType];
+                }
+            });
+
+            // Charger les secteurs pour les filtres
+            await loadSecteurs();
+
+            // Mettre à jour les compteurs par onglet
+            updateTabCounts();
+
+            // Afficher le personnel
+            displayStaff();
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError('Erreur de connexion au serveur');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Charger les secteurs
+    async function loadSecteurs() {
+        try {
+            const response = await fetch('/api/secteurs/');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const secteurFilter = document.getElementById('secteurFilter');
+                    const modalSecteurs = document.getElementById('modalSecteurs');
+
+                    // Vider les options existantes
+                    secteurFilter.innerHTML = '<option value="">Tous les secteurs</option>';
+                    modalSecteurs.innerHTML = '';
+
+                    // Ajouter les options
+                    data.secteurs.forEach(secteur => {
+                        const option1 = document.createElement('option');
+                        option1.value = secteur.id;
+                        option1.textContent = secteur.nom;
+                        secteurFilter.appendChild(option1);
+
+                        const option2 = document.createElement('option');
+                        option2.value = secteur.id;
+                        option2.textContent = secteur.nom;
+                        modalSecteurs.appendChild(option2);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des secteurs:', error);
+        }
+    }
+
+    // Mettre à jour les compteurs des onglets
+    function updateTabCounts() {
+        const counts = {
+            all: allStaff.length,
+            prestataire: allStaff.filter(s => s.personnel_type === 'prestataire').length,
+            medecin: allStaff.filter(s => s.personnel_type === 'medecin').length,
+            chef_secteur: allStaff.filter(s => s.personnel_type === 'chef_secteur').length
+        };
+
+        document.getElementById('tab-all-count').textContent = counts.all;
+        document.getElementById('tab-prestataires-count').textContent = counts.prestataire;
+        document.getElementById('tab-medecins-count').textContent = counts.medecin;
+        document.getElementById('tab-chefs-count').textContent = counts.chef_secteur;
+    }
+
+    // Changer d'onglet
+    function changeTab(tab) {
+        currentTab = tab;
+        currentPage = 1;
+
+        // Mettre à jour les onglets actifs
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'text-blue-600');
+            btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+        });
+
+        const activeTab = document.getElementById(`tab-${tab === 'all' ? 'all' :
+            tab === 'prestataire' ? 'prestataires' :
+                tab === 'medecin' ? 'medecins' : 'chefs'}`);
+
+        activeTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+        activeTab.classList.add('border-blue-500', 'text-blue-600');
+
+        // Mettre à jour le titre du tableau
+        const titles = {
+            'all': 'Tout le personnel',
+            'prestataire': 'Prestataires',
+            'medecin': 'Médecins',
+            'chef_secteur': 'Chefs de secteur'
+        };
+        document.getElementById('tableTitle').textContent = titles[tab];
+
+        displayStaff();
+    }
+
+    // Afficher le personnel
+    function displayStaff() {
+        const search = document.getElementById('search').value.toLowerCase();
+        const specialiteFilter = document.getElementById('specialiteFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const secteurFilter = document.getElementById('secteurFilter').value;
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+
+        // Filtrer par onglet actuel
+        let tempFiltered = allStaff;
+        if (currentTab !== 'all') {
+            tempFiltered = tempFiltered.filter(staff => staff.personnel_type === currentTab);
+        }
+
+        // Appliquer les autres filtres
+        filteredStaff = tempFiltered.filter(staff => {
+            // Recherche
+            const matchesSearch =
+                (staff.prenom && staff.prenom.toLowerCase().includes(search)) ||
+                (staff.nom && staff.nom.toLowerCase().includes(search)) ||
+                (staff.email && staff.email.toLowerCase().includes(search)) ||
+                (staff.telephone && staff.telephone.includes(search)) ||
+                (staff.nom_utilisateur && staff.nom_utilisateur.toLowerCase().includes(search));
+
+            // Spécialité (dans metadonnees)
+            const matchesSpecialite = !specialiteFilter ||
+                (staff.metadonnees && JSON.parse(staff.metadonnees).specialite === specialiteFilter);
+
+            // Statut
+            let matchesStatus = true;
+            if (statusFilter) {
+                if (statusFilter === 'active') {
+                    matchesStatus = staff.est_actif === true;
+                } else if (statusFilter === 'inactive') {
+                    matchesStatus = staff.est_actif === false;
+                } else {
+                    // Pour les autres statuts, vérifier dans metadonnees
+                    if (staff.metadonnees) {
+                        const meta = JSON.parse(staff.metadonnees);
+                        matchesStatus = meta.statut_travail === statusFilter;
+                    } else {
+                        matchesStatus = false;
+                    }
+                }
+            }
+
+            // Secteur (à implémenter selon votre modèle de données)
+            const matchesSecteur = !secteurFilter ||
+                (staff.secteur_id && staff.secteur_id.toString() === secteurFilter);
+
+            // Date d'embauche
+            let matchesDate = true;
+            if (staff.metadonnees && (dateFrom || dateTo)) {
+                const meta = JSON.parse(staff.metadonnees);
+                if (meta.date_embauche) {
+                    const embaucheDate = new Date(meta.date_embauche);
+                    if (dateFrom && embaucheDate < new Date(dateFrom)) matchesDate = false;
+                    if (dateTo && embaucheDate > new Date(dateTo)) matchesDate = false;
+                }
+            }
+
+            return matchesSearch && matchesSpecialite && matchesStatus && matchesSecteur && matchesDate;
+        });
+
+        // Trier
+        sortStaff();
+
+        // Mettre à jour le compteur
+        document.getElementById('staffCount').textContent = filteredStaff.length;
+        document.getElementById('totalStaff').textContent = filteredStaff.length;
+
+        // Pagination
+        const totalPages = Math.ceil(filteredStaff.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, filteredStaff.length);
+        const pageStaff = filteredStaff.slice(startIndex, endIndex);
+
+        // Mettre à jour les infos de pagination
+        document.getElementById('startIndex').textContent = filteredStaff.length > 0 ? startIndex + 1 : 0;
+        document.getElementById('endIndex').textContent = endIndex;
+        document.getElementById('currentPage').textContent = currentPage;
+        document.getElementById('prevPage').disabled = currentPage <= 1;
+        document.getElementById('nextPage').disabled = currentPage >= totalPages;
+
+        // Afficher ou masquer l'état vide
+        if (filteredStaff.length === 0) {
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('staffTableBody').innerHTML = '';
+            document.getElementById('staffCardsContainer').innerHTML = '';
+        } else {
+            document.getElementById('emptyState').classList.add('hidden');
+
+            if (isCardView) {
+                renderStaffCards(pageStaff);
+            } else {
+                renderStaffTable(pageStaff);
+            }
+        }
+    }
+
+    // Trier le personnel
+    function sortStaff() {
+        filteredStaff.sort((a, b) => {
+            switch (currentSort) {
+                case 'name_asc':
+                    return (a.prenom + ' ' + a.nom).localeCompare(b.prenom + ' ' + b.nom);
+                case 'name_desc':
+                    return (b.prenom + ' ' + b.nom).localeCompare(a.prenom + ' ' + a.nom);
+                case 'date_asc':
+                    const dateA = a.metadonnees ? JSON.parse(a.metadonnees).date_embauche : '';
+                    const dateB = b.metadonnees ? JSON.parse(b.metadonnees).date_embauche : '';
+                    return new Date(dateA) - new Date(dateB);
+                case 'date_desc':
+                    const dateC = a.metadonnees ? JSON.parse(a.metadonnees).date_embauche : '';
+                    const dateD = b.metadonnees ? JSON.parse(b.metadonnees).date_embauche : '';
+                    return new Date(dateD) - new Date(dateC);
+                default:
+                    return 0;
+            }
+        });
+    }
+
+    // Rendre le tableau du personnel
+    function renderStaffTable(staffList) {
+        const tbody = document.getElementById('staffTableBody');
+        tbody.innerHTML = '';
+
+        staffList.forEach(staff => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 cursor-pointer';
+            row.onclick = () => showDetail(staff.id);
+
+            // Récupérer les métadonnées
+            let metadonnees = {};
+            try {
+                if (staff.metadonnees) {
+                    metadonnees = JSON.parse(staff.metadonnees);
+                }
+            } catch (e) {
+                console.error('Erreur parsing métadonnées:', e);
+            }
+
+            // Rôle en français
+            const roleMap = {
+                'prestataire': 'Prestataire',
+                'medecin': 'Médecin',
+                'chef_secteur': 'Chef de secteur'
+            };
+
+            // Couleur du badge selon le rôle
+            const badgeColor = {
+                'prestataire': 'bg-green-100 text-green-800',
+                'medecin': 'bg-blue-100 text-blue-800',
+                'chef_secteur': 'bg-yellow-100 text-yellow-800'
+            };
+
+            // Date d'embauche formatée
+            const dateEmbauche = metadonnees.date_embauche ?
+                new Date(metadonnees.date_embauche).toLocaleDateString('fr-FR') : 'Non définie';
+
+            // Statut
+            let statutText = staff.est_actif ? 'Actif' : 'Inactif';
+            let statutClass = staff.est_actif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+
+            if (metadonnees.statut_travail === 'vacances') {
+                statutText = 'Vacances';
+                statutClass = 'bg-blue-100 text-blue-800';
+            } else if (metadonnees.statut_travail === 'congé') {
+                statutText = 'Congé';
+                statutClass = 'bg-purple-100 text-purple-800';
+            }
+
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 mr-3 rounded-full bg-spad-100">
+                            <span class="font-bold text-spad-600">${(staff.prenom || 'P')[0].toUpperCase()}</span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900">${staff.prenom || ''} ${staff.nom || ''}</div>
+                            <div class="text-sm text-gray-500">${staff.nom_utilisateur || ''}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div>
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeColor[staff.personnel_type]}">
+                            ${roleMap[staff.personnel_type]}
+                        </span>
+                        <div class="mt-1 text-sm text-gray-500">${metadonnees.specialite || 'Non spécifiée'}</div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${staff.email || ''}</div>
+                    <div class="text-sm text-gray-500">${staff.telephone || 'Non renseigné'}</div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                    ${metadonnees.secteurs ? metadonnees.secteurs.join(', ') : 'Non assigné'}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                    ${dateEmbauche}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statutClass}">
+                        ${statutText}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                    <button onclick="event.stopPropagation(); editStaff(${staff.id})" 
+                        class="mr-3 text-blue-600 hover:text-blue-900">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="event.stopPropagation(); showDeleteStaffModal(${staff.id})" 
+                        class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // Rendre les cartes du personnel
+    function renderStaffCards(staffList) {
+        const container = document.getElementById('staffCardsContainer');
+        container.innerHTML = '';
+
+        staffList.forEach(staff => {
+            let metadonnees = {};
+            try {
+                if (staff.metadonnees) {
+                    metadonnees = JSON.parse(staff.metadonnees);
+                }
+            } catch (e) {
+                console.error('Erreur parsing métadonnées:', e);
+            }
+
+            // Couleur selon le rôle
+            const roleColor = {
+                'prestataire': 'bg-green-50 border-green-200',
+                'medecin': 'bg-blue-50 border-blue-200',
+                'chef_secteur': 'bg-yellow-50 border-yellow-200'
+            };
+
+            const roleText = {
+                'prestataire': 'Prestataire',
+                'medecin': 'Médecin',
+                'chef_secteur': 'Chef de secteur'
+            };
+
+            // Statut
+            let statutText = staff.est_actif ? 'Actif' : 'Inactif';
+            let statutClass = staff.est_actif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+
+            const card = document.createElement('div');
+            card.className = 'bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200';
+            card.onclick = () => showDetail(staff.id);
+
+            card.innerHTML = `
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full ${roleColor[staff.personnel_type]}">
+                                <span class="font-bold text-lg ${staff.personnel_type === 'prestataire' ? 'text-green-600' :
+                    staff.personnel_type === 'medecin' ? 'text-blue-600' : 'text-yellow-600'}">
+                                    ${(staff.prenom || 'P')[0].toUpperCase()}
+                                </span>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="font-medium text-gray-900">${staff.prenom || ''} ${staff.nom || ''}</h4>
+                                <p class="text-sm text-gray-500">${roleText[staff.personnel_type]}</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statutClass}">
+                            ${statutText}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="mr-2 text-gray-400 fas fa-envelope"></i>
+                            <span class="truncate">${staff.email || 'Non renseigné'}</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="mr-2 text-gray-400 fas fa-phone"></i>
+                            <span>${staff.telephone || 'Non renseigné'}</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="mr-2 text-gray-400 fas fa-briefcase"></i>
+                            <span>${metadonnees.specialite || 'Non spécifiée'}</span>
+                        </div>
+                        ${metadonnees.secteurs ? `
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="mr-2 text-gray-400 fas fa-map-marker-alt"></i>
+                            <span class="truncate">${metadonnees.secteurs.join(', ')}</span>
+                        </div>` : ''}
+                    </div>
+                    
+                    <div class="flex justify-end mt-6 space-x-2">
+                        <button onclick="event.stopPropagation(); editStaff(${staff.id})"
+                            class="p-2 text-blue-600 rounded-lg hover:bg-blue-50">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="event.stopPropagation(); showDeleteStaffModal(${staff.id})"
+                            class="p-2 text-red-600 rounded-lg hover:bg-red-50">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+
+    // Basculer entre vue tableau et vue cartes
+    function toggleView() {
+        isCardView = !isCardView;
+        const toggleBtn = document.getElementById('viewToggle');
+
+        if (isCardView) {
+            document.getElementById('tableView').classList.add('hidden');
+            document.getElementById('cardView').classList.remove('hidden');
+            toggleBtn.innerHTML = '<i class="fas fa-list"></i>';
+        } else {
+            document.getElementById('tableView').classList.remove('hidden');
+            document.getElementById('cardView').classList.add('hidden');
+            toggleBtn.innerHTML = '<i class="fas fa-th"></i>';
+        }
+
+        displayStaff();
+    }
+
+    // Filtrer le personnel
+    function filterStaff() {
+        currentPage = 1;
+        displayStaff();
+    }
+
+    // Afficher/masquer les filtres avancés
+    function showAdvancedFilters() {
+        const filters = document.getElementById('advancedFilters');
+        const btn = document.getElementById('advancedFilterBtn');
+
+        if (filters.classList.contains('hidden')) {
+            filters.classList.remove('hidden');
+            btn.classList.add('bg-blue-50', 'text-blue-600');
+        } else {
+            filters.classList.add('hidden');
+            btn.classList.remove('bg-blue-50', 'text-blue-600');
+        }
+    }
+
+    // Réinitialiser les filtres
+    function resetFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('specialiteFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('secteurFilter').value = '';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+
+        // Masquer les filtres avancés s'ils sont ouverts
+        const filters = document.getElementById('advancedFilters');
+        const btn = document.getElementById('advancedFilterBtn');
+        filters.classList.add('hidden');
+        btn.classList.remove('bg-blue-50', 'text-blue-600');
+
+        filterStaff();
+    }
+
+    // Changer de page
+    function changePage(direction) {
+        currentPage += direction;
+        displayStaff();
+    }
+
+    // Rafraîchir le personnel
+    function refreshStaff() {
+        loadStaff();
+    }
+
+    // Exporter le personnel
+    function exportStaff() {
+        // Implémentation de l'exportation
+        alert('Exportation du personnel (fonctionnalité à implémenter)');
+    }
+
+    // Afficher le modal d'ajout
+    function showAddStaffModal() {
+        document.getElementById('modalTitle').textContent = 'Nouveau membre du personnel';
+        document.getElementById('staffId').value = '';
+        document.getElementById('modalFirstName').value = '';
+        document.getElementById('modalLastName').value = '';
+        document.getElementById('modalEmail').value = '';
+        document.getElementById('modalUsername').value = '';
+        document.getElementById('modalPhone').value = '';
+        document.getElementById('modalSpecialite').value = '';
+        document.getElementById('modalDateEmbauche').value = '';
+        document.getElementById('modalPassword').value = '';
+        document.getElementById('modalPassword').required = true;
+        document.getElementById('passwordHelp').textContent = 'Mot de passe requis';
+        document.getElementById('modalStatus').value = 'active';
+        document.getElementById('modalError').classList.add('hidden');
+
+        // Réinitialiser les radios
+        document.querySelectorAll('input[name="staffType"]').forEach(radio => {
+            radio.checked = false;
+        });
+
+        document.getElementById('staffModal').classList.remove('hidden');
+    }
+
+    // Mettre à jour le rôle dans le formulaire
+    function updateRole(role) {
+        document.getElementById('modalRole').value = role;
+    }
+
+    // Modifier un membre du personnel
+    async function editStaff(staffId) {
+        try {
+            const response = await fetch(`/api/utilisateurs/${staffId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const staff = data.resultat;
+
+                    document.getElementById('modalTitle').textContent = 'Modifier le membre';
+                    document.getElementById('staffId').value = staff.id;
+                    document.getElementById('modalFirstName').value = staff.prenom || '';
+                    document.getElementById('modalLastName').value = staff.nom || '';
+                    document.getElementById('modalEmail').value = staff.email || '';
+                    document.getElementById('modalUsername').value = staff.nom_utilisateur || '';
+                    document.getElementById('modalPhone').value = staff.telephone || '';
+                    document.getElementById('modalPassword').value = '';
+                    document.getElementById('modalPassword').required = false;
+                    document.getElementById('passwordHelp').textContent = 'Laissez vide pour ne pas modifier';
+                    document.getElementById('modalError').classList.add('hidden');
+
+                    // Métadonnées
+                    let metadonnees = {};
+                    try {
+                        if (staff.metadonnees) {
+                            metadonnees = JSON.parse(staff.metadonnees);
+                        }
+                    } catch (e) { }
+
+                    document.getElementById('modalSpecialite').value = metadonnees.specialite || '';
+                    document.getElementById('modalDateEmbauche').value = metadonnees.date_embauche || '';
+                    document.getElementById('modalStatus').value = metadonnees.statut_travail || 'active';
+
+                    // Rôle
+                    const roleRadio = document.querySelector(`input[name="staffType"][value="${staff.role}"]`);
+                    if (roleRadio) roleRadio.checked = true;
+
+                    document.getElementById('staffModal').classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError('Erreur lors du chargement des données');
+        }
+    }
+
+    // Cacher le modal personnel
+    function hideStaffModal() {
+        document.getElementById('staffModal').classList.add('hidden');
+    }
+
+    // Sauvegarder le membre du personnel
+    async function saveStaff() {
+        const staffId = document.getElementById('staffId').value;
+        const isEdit = !!staffId;
+
+        const staffData = {
+            prenom: document.getElementById('modalFirstName').value,
+            nom: document.getElementById('modalLastName').value,
+            email: document.getElementById('modalEmail').value,
+            nom_utilisateur: document.getElementById('modalUsername').value,
+            telephone: document.getElementById('modalPhone').value,
+            role: document.querySelector('input[name="staffType"]:checked')?.value,
+            mot_de_passe: document.getElementById('modalPassword').value || undefined
+        };
+
+        // Ajouter les métadonnées
+        const metadonnees = {
+            specialite: document.getElementById('modalSpecialite').value,
+            date_embauche: document.getElementById('modalDateEmbauche').value,
+            statut_travail: document.getElementById('modalStatus').value
+        };
+
+        // Secteurs sélectionnés
+        const secteurSelect = document.getElementById('modalSecteurs');
+        const secteursSelectionnes = Array.from(secteurSelect.selectedOptions).map(opt => opt.value);
+        if (secteursSelectionnes.length > 0) {
+            metadonnees.secteurs = secteursSelectionnes;
+        }
+
+        staffData.metadonnees = JSON.stringify(metadonnees);
+
+        // Statut actif/inactif
+        staffData.est_actif = document.getElementById('modalStatus').value !== 'inactive';
+
+        // Désactiver le bouton pendant la sauvegarde
+        const saveBtn = document.getElementById('modalSaveBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i>Enregistrement...';
+
+        try {
+            let response;
+            if (isEdit) {
+                response = await fetch(`/api/utilisateurs/${staffId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(staffData)
+                });
+            } else {
+                response = await fetch('/api/utilisateurs/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(staffData)
+                });
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    hideStaffModal();
+                    loadStaff(); // Recharger la liste
+                    showSuccess(isEdit ? 'Membre modifié avec succès' : 'Membre créé avec succès');
+                } else {
+                    showModalError(data.message || 'Erreur lors de la sauvegarde');
+                }
+            } else {
+                showModalError('Erreur serveur lors de la sauvegarde');
+            }
+        } catch (error) {
+            showModalError('Erreur de connexion au serveur');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = 'Enregistrer';
+        }
+    }
+
+    // Afficher les détails d'un membre
+    async function showDetail(staffId) {
+        try {
+            const response = await fetch(`/api/utilisateurs/${staffId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const staff = data.resultat;
+
+                    document.getElementById('detailName').textContent =
+                        `${staff.prenom || ''} ${staff.nom || ''}`;
+
+                    // Métadonnées
+                    let metadonnees = {};
+                    try {
+                        if (staff.metadonnees) {
+                            metadonnees = JSON.parse(staff.metadonnees);
+                        }
+                    } catch (e) { }
+
+                    // Rôle en français
+                    const roleMap = {
+                        'prestataire': 'Prestataire',
+                        'medecin': 'Médecin',
+                        'chef_secteur': 'Chef de secteur'
+                    };
+
+                    // Date formatée
+                    const dateEmbauche = metadonnees.date_embauche ?
+                        new Date(metadonnees.date_embauche).toLocaleDateString('fr-FR') : 'Non définie';
+
+                    const detailContent = document.getElementById('detailContent');
+                    detailContent.innerHTML = `
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            <div>
+                                <h4 class="mb-4 text-lg font-medium text-gray-900">Informations personnelles</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Nom complet</label>
+                                        <p class="mt-1 text-gray-900">${staff.prenom || ''} ${staff.nom || ''}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Rôle</label>
+                                        <p class="mt-1 text-gray-900">${roleMap[staff.role] || staff.role}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Spécialité</label>
+                                        <p class="mt-1 text-gray-900">${metadonnees.specialite || 'Non spécifiée'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="mb-4 text-lg font-medium text-gray-900">Contact</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Email</label>
+                                        <p class="mt-1 text-gray-900">${staff.email || ''}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Téléphone</label>
+                                        <p class="mt-1 text-gray-900">${staff.telephone || 'Non renseigné'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Nom d'utilisateur</label>
+                                        <p class="mt-1 text-gray-900">${staff.nom_utilisateur || ''}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-8 mt-8 border-t border-gray-200">
+                            <h4 class="mb-4 text-lg font-medium text-gray-900">Informations professionnelles</h4>
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                <div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Date d'embauche</label>
+                                        <p class="mt-1 text-gray-900">${dateEmbauche}</p>
+                                    </div>
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-500">Statut</label>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
+                                            ${staff.est_actif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                            ${staff.est_actif ? 'Actif' : 'Inactif'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Secteur(s) assigné(s)</label>
+                                        <p class="mt-1 text-gray-900">
+                                            ${metadonnees.secteurs ? metadonnees.secteurs.join(', ') : 'Non assigné'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end pt-8 mt-8 space-x-3 border-t border-gray-200">
+                            <button type="button" onclick="hideDetailModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                Fermer
+                            </button>
+                            <button type="button" onclick="editStaff(${staff.id})"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700">
+                                Modifier
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('detailModal').classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    // Cacher le modal détails
+    function hideDetailModal() {
+        document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // Afficher le modal de suppression
+    function showDeleteStaffModal(staffId) {
+        staffToDelete = staffId;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    // Cacher le modal de suppression
+    function hideDeleteModal() {
+        staffToDelete = null;
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+
+    // Confirmer la suppression
+    async function confirmDeleteStaff() {
+        if (!staffToDelete) return;
+
+        try {
+            const response = await fetch(`/api/utilisateurs/${staffToDelete}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    hideDeleteModal();
+                    loadStaff(); // Recharger la liste
+                    showSuccess('Membre supprimé avec succès');
+                } else {
+                    showError('Erreur lors de la suppression');
+                }
+            } else {
+                showError('Erreur serveur lors de la suppression');
+            }
+        } catch (error) {
+            showError('Erreur de connexion au serveur');
+        }
+    }
+
+    // Afficher l'état de chargement
+    function showLoading() {
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('staffTableBody').innerHTML = '';
+        document.getElementById('staffCardsContainer').innerHTML = '';
+    }
+
+    // Cacher l'état de chargement
+    function hideLoading() {
+        document.getElementById('loadingState').classList.add('hidden');
+    }
+
+    // Afficher une erreur dans le modal
+    function showModalError(message) {
+        const errorDiv = document.getElementById('modalError');
+        const errorText = document.getElementById('modalErrorText');
+        errorText.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    // Afficher un message de succès
+    function showSuccess(message) {
+        // Implémentation simplifiée
+        alert(message);
+    }
+
+    // Afficher une erreur
+    function showError(message) {
+        alert('Erreur: ' + message);
+    }
+
+    // Charger le personnel au démarrage
+    document.addEventListener('DOMContentLoaded', loadStaff);
+</script>
+{% endblock %}

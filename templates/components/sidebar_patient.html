@@ -1,0 +1,63 @@
+<div class="pb-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Santé
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/patient/sante"
+            class="nav-item {% if request.endpoint == 'patient_sante' %}active{% endif %}">
+            <i class="fas fa-heartbeat"></i>
+            <span>Mon état de santé</span>
+        </a>
+
+        <a href="/dashboard/patient/rendez-vous"
+            class="nav-item {% if request.endpoint == 'patient_rendez_vous' %}active{% endif %}">
+            <i class="fas fa-calendar-check"></i>
+            <span>Mes rendez-vous</span>
+        </a>
+
+        <a href="/dashboard/patient/prestataires"
+            class="nav-item {% if request.endpoint == 'patient_prestataires' %}active{% endif %}">
+            <i class="fas fa-user-nurse"></i>
+            <span>Mes prestataires</span>
+        </a>
+
+        <a href="/dashboard/patient/medecins"
+            class="nav-item {% if request.endpoint == 'patient_medecins' %}active{% endif %}">
+            <i class="fas fa-user-md"></i>
+            <span>Mes médecins</span>
+        </a>
+
+        <a href="/dashboard/patient/alertes"
+            class="nav-item {% if request.endpoint == 'patient_alertes' %}active{% endif %}">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Alertes santé</span>
+            <span id="patient-alertes-count"
+                class="hidden px-2 py-1 ml-auto text-xs font-medium text-white rounded-full bg-health-critical">0</span>
+        </a>
+    </div>
+</div>
+
+<div class="pt-4">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Documents
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/patient/documents"
+            class="nav-item {% if request.endpoint == 'patient_documents' %}active{% endif %}">
+            <i class="fas fa-file-medical"></i>
+            <span>Documents médicaux</span>
+        </a>
+
+        <a href="/dashboard/patient/ordonnances"
+            class="nav-item {% if request.endpoint == 'patient_ordonnances' %}active{% endif %}">
+            <i class="fas fa-prescription"></i>
+            <span>Ordonnances</span>
+        </a>
+
+        <a href="/dashboard/patient/historique"
+            class="nav-item {% if request.endpoint == 'patient_historique' %}active{% endif %}">
+            <i class="fas fa-history"></i>
+            <span>Historique médical</span>
+        </a>
+    </div>
+</div>

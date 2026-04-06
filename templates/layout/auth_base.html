@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Digital SPAD{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/tailwindcss.js') }}"></script>
+    <script src="{{ url_for('static', filename='css/custom.css') }}"></script>
+    <!-- Configuration Tailwind inline -->
+    <script src="{{ url_for('static', filename='js/styles.js') }}"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/fontawesome.js') }}"></script>
+    <!-- Custom styles -->
+    <style>
+        /* Votre CSS personnalisé ici */
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    {% block content %}{% endblock %}
+
+    <!-- Chargement des scripts modulaires -->
+<!-- 
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+     -->
+
+    <!-- Script spécifique à la page -->
+    {% block page_js %}
+    <script>
+        // Déterminer la page et charger le module correspondant
+        const pageScripts = {
+            '/': 'home.js',
+            '/login': 'login.js',
+            '/register': 'register.js',
+            '/dashboard': 'dashboard.js'
+        };
+
+        const currentPath = window.location.pathname;
+        let scriptName = pageScripts[currentPath];
+
+        // Si pas de correspondance exacte, chercher par inclusion
+        if (!scriptName) {
+            for (const [path, script] of Object.entries(pageScripts)) {
+                if (currentPath.startsWith(path)) {
+                    scriptName = script;
+                    break;
+                }
+            }
+        }
+
+        // Charger le script de la page si trouvé
+        if (scriptName) {
+            const script = document.createElement('script');
+            script.src = "{{ url_for('static', filename='js/') }}" + scriptName;
+            script.onload = function() {
+                console.log(`${scriptName} chargé avec succès`);
+            };
+            script.onerror = function() {
+                console.error(`Erreur de chargement de ${scriptName}`);
+            };
+            document.body.appendChild(script);
+        }
+    </script>
+    {% endblock %}
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

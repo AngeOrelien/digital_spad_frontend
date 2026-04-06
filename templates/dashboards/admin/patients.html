@@ -1,0 +1,1320 @@
+{% extends "layout/dashboard_base.html" %}
+
+{% block title %}Gestion Patients{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex mt-3 mb-2" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="{{ url_for('admin_dashboard') }}"
+                class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-green-600">
+                <i class="mr-2 fas fa-home"></i>
+                Dashboard
+            </a>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i class="mx-1 text-gray-400 fas fa-chevron-right"></i>
+                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Gestion des Patients</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block page_title %}
+<div class="py-4 md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <i class="mr-2 text-green-600 fas fa-user-injured"></i>
+            Gestion des Patients
+        </h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Gérer les dossiers patients et leurs informations médicales
+        </p>
+    </div>
+    <div class="flex mt-4 space-x-3 md:mt-0 md:ml-4">
+        <button type="button" onclick="exportPatients()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            <i class="mr-2 fas fa-download"></i>
+            Exporter
+        </button>
+        <button type="button" onclick="showAddPatientModal()"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            <i class="mr-2 fas fa-user-plus"></i>
+            Nouveau patient
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Stats patients -->
+<div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4">
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full">
+                        <i class="text-xl text-green-600 fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Total patients</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="totalPatients">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
+                        <i class="text-xl text-blue-600 fas fa-heartbeat"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Patients actifs</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="activePatients">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full">
+                        <i class="text-xl text-yellow-600 fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Alertes médicales</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="medicalAlerts">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full">
+                        <i class="text-xl text-purple-600 fas fa-calendar-check"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">RDV cette semaine</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="weeklyAppointments">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="p-6 mb-6 bg-white rounded-lg shadow">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div>
+            <label for="search" class="block mb-2 text-sm font-medium text-gray-700">Recherche</label>
+            <input type="text" id="search" placeholder="Nom, email, secteur..."
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                onkeyup="filterPatients()">
+        </div>
+        <div>
+            <label for="sectorFilter" class="block mb-2 text-sm font-medium text-gray-700">Secteur</label>
+            <select id="sectorFilter" onchange="filterPatients()"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                <option value="">Tous les secteurs</option>
+                <!-- Les secteurs seront chargés dynamiquement -->
+            </select>
+        </div>
+        <div>
+            <label for="statusFilter" class="block mb-2 text-sm font-medium text-gray-700">Statut médical</label>
+            <select id="statusFilter" onchange="filterPatients()"
+                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                <option value="">Tous les statuts</option>
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+                <option value="decede">Décédé</option>
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button onclick="resetFilters()"
+                class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <i class="mr-2 fas fa-redo"></i>Réinitialiser
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Tableau des patients -->
+<div class="overflow-hidden bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    Liste des patients
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    <span id="patientCount">0</span> patient(s) trouvé(s)
+                </p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="refreshPatients()"
+                    class="p-2 text-gray-600 rounded-lg hover:text-green-600 hover:bg-green-50">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Patient
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Informations
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Secteur
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Statut
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Dernière visite
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="patientsTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- Les patients seront chargés ici par JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6">
+            <div class="text-sm text-gray-500">
+                Affichage <span id="startIndex">1</span>-<span id="endIndex">10</span> de <span
+                    id="totalPatientsCount">0</span>
+            </div>
+            <div class="flex space-x-2">
+                <button id="prevPage" onclick="changePage(-1)" disabled
+                    class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-700">Page <span id="currentPage">1</span></span>
+                </div>
+                <button id="nextPage" onclick="changePage(1)" disabled
+                    class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- État vide -->
+        <div id="emptyState" class="hidden py-12 text-center">
+            <i class="mb-4 text-5xl text-gray-300 fas fa-user-injured"></i>
+            <h3 class="mb-2 text-lg font-medium text-gray-900">Aucun patient trouvé</h3>
+            <p class="mb-6 text-gray-500">Commencez par créer votre premier patient.</p>
+            <button onclick="showAddPatientModal()"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700">
+                <i class="mr-2 fas fa-user-plus"></i>
+                Ajouter un patient
+            </button>
+        </div>
+
+        <!-- État chargement -->
+        <div id="loadingState" class="py-12 text-center">
+            <div class="inline-block">
+                <i class="mb-4 text-3xl text-green-600 fas fa-spinner fa-spin"></i>
+                <p class="text-gray-500">Chargement des patients...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajout/Modification Patient -->
+<div id="patientModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-500 bg-opacity-75">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900" id="patientModalTitle">Nouveau patient</h3>
+        </div>
+        <form id="patientForm" class="p-6 space-y-6">
+            <input type="hidden" id="patientId">
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="modalPrenom" class="block text-sm font-medium text-gray-700">Prénom *</label>
+                    <input type="text" id="modalPrenom" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="modalNom" class="block text-sm font-medium text-gray-700">Nom *</label>
+                    <input type="text" id="modalNom" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label for="modalEmail" class="block text-sm font-medium text-gray-700">Email *</label>
+                <input type="email" id="modalEmail" required
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+            </div>
+
+            <div>
+                <label for="modalUsername" class="block text-sm font-medium text-gray-700">Nom d'utilisateur *</label>
+                <input type="text" id="modalUsername" required
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="modalPhone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+                    <input type="tel" id="modalPhone"
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="modalBirthDate" class="block text-sm font-medium text-gray-700">Date de naissance
+                        *</label>
+                    <input type="date" id="modalBirthDate" required
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                    <label for="modalSexe" class="block text-sm font-medium text-gray-700">Sexe</label>
+                    <select id="modalSexe"
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                        <option value="">Non spécifié</option>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="modalStatus" class="block text-sm font-medium text-gray-700">Statut médical</label>
+                    <select id="modalStatus"
+                        class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                        <option value="actif">Actif</option>
+                        <option value="inactif">Inactif</option>
+                        <option value="decede">Décédé</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="modalAddress" class="block text-sm font-medium text-gray-700">Adresse</label>
+                <textarea id="modalAddress" rows="2"
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"></textarea>
+            </div>
+
+            <!-- Secteur -->
+            <div>
+                <label for="modalSecteur" class="block text-sm font-medium text-gray-700">Secteur affecté</label>
+                <select id="modalSecteur"
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                    <option value="">Aucun secteur</option>
+                    <!-- Les secteurs seront chargés dynamiquement -->
+                </select>
+            </div>
+
+            <!-- Mot de passe (uniquement pour la création) -->
+            <div id="passwordFields">
+                <label for="modalPassword" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+                <input type="password" id="modalPassword"
+                    class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+                <p class="mt-1 text-xs text-gray-500" id="passwordHelp">Laissez vide pour générer un mot de passe
+                    aléatoire</p>
+            </div>
+
+            <!-- Erreur -->
+            <div id="modalError" class="hidden p-4 border-l-4 border-red-400 bg-red-50">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="text-red-400 fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p id="modalErrorText" class="text-sm text-red-700"></p>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="flex justify-end px-6 py-4 space-x-3 border-t border-gray-200">
+            <button type="button" onclick="hidePatientModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Annuler
+            </button>
+            <button type="button" onclick="savePatient()" id="modalSaveBtn"
+                class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                Enregistrer
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Vue détaillée Patient -->
+<div id="patientDetailModal"
+    class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-gray-500 bg-opacity-75">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-medium text-gray-900" id="patientDetailTitle">Détails du patient</h3>
+                <button onclick="hidePatientDetailModal()" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="patientDetailContent">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables globales
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let allPatients = [];
+    let allSectors = [];
+    let allSectorsForPatients = []
+    let currentDetailPatientId = null
+
+    // Charger les patients
+    async function loadPatients() {
+        showLoading();
+
+        try {
+            // Charger les patients
+            const response = await fetch('/api/utilisateurs/role/patient');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    allPatients = data.resultats || [];
+
+                    // Pour chaque patient, charger les détails supplémentaires
+                    for (let patient of allPatients) {
+                        try {
+                            // Charger les détails patient
+                            const detailResponse = await fetch(`/api/utilisateurs/${patient.id}`);
+                            if (detailResponse.ok) {
+                                const detailData = await detailResponse.json();
+                                if (detailData.success && detailData.resultat) {
+                                    patient.details = detailData.resultat;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Erreur chargement détails:', error);
+                        }
+                    }
+
+                    displayPatients();
+                }
+            }
+
+            // Charger les secteurs
+            const sectorResponse = await fetch('/api/secteurs/');
+            if (sectorResponse.ok) {
+                const sectorData = await sectorResponse.json();
+                if (sectorData.success) {
+                    allSectors = sectorData.secteurs || [];
+                    populateSectorFilter();
+                }
+            }
+
+            // Charger les statistiques
+            await loadStatistics();
+
+        } catch (error) {
+            console.error('Erreur:', error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Charger les statistiques
+    async function loadStatistics() {
+        try {
+            // Simuler des statistiques pour l'exemple
+            document.getElementById('totalPatients').textContent = allPatients.length;
+            document.getElementById('activePatients').textContent = allPatients.filter(p =>
+                p.details && p.details.detail_patient && p.details.detail_patient.statut === 'actif').length;
+            document.getElementById('medicalAlerts').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('weeklyAppointments').textContent = Math.floor(Math.random() * 20);
+        } catch (error) {
+            console.error('Erreur statistiques:', error);
+        }
+    }
+
+    // Peupler le filtre des secteurs
+    function populateSectorFilter() {
+        const sectorFilter = document.getElementById('sectorFilter');
+        sectorFilter.innerHTML = '<option value="">Tous les secteurs</option>';
+
+        allSectors.forEach(sector => {
+            const option = document.createElement('option');
+            option.value = sector.id;
+            option.textContent = sector.nom;
+            sectorFilter.appendChild(option);
+        });
+    }
+
+    // Afficher les patients
+    function displayPatients() {
+        const search = document.getElementById('search').value.toLowerCase();
+        const sectorFilter = document.getElementById('sectorFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        // Filtrer les patients
+        let filteredPatients = allPatients.filter(patient => {
+            const matchesSearch =
+                (patient.prenom && patient.prenom.toLowerCase().includes(search)) ||
+                (patient.nom && patient.nom.toLowerCase().includes(search)) ||
+                (patient.email && patient.email.toLowerCase().includes(search));
+
+            // Note: Pour le filtre secteur, nous aurions besoin de plus de données
+            const matchesSector = !sectorFilter || true; // À implémenter
+
+            const matchesStatus = !statusFilter ||
+                (patient.details &&
+                    patient.details.detail_patient &&
+                    patient.details.detail_patient.statut === statusFilter);
+
+            return matchesSearch && matchesSector && matchesStatus;
+        });
+
+        // Mettre à jour le compteur
+        document.getElementById('patientCount').textContent = filteredPatients.length;
+        document.getElementById('totalPatientsCount').textContent = filteredPatients.length;
+
+        // Pagination
+        const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, filteredPatients.length);
+        const pagePatients = filteredPatients.slice(startIndex, endIndex);
+
+        // Mettre à jour les infos de pagination
+        document.getElementById('startIndex').textContent = startIndex + 1;
+        document.getElementById('endIndex').textContent = endIndex;
+        document.getElementById('currentPage').textContent = currentPage;
+        document.getElementById('prevPage').disabled = currentPage <= 1;
+        document.getElementById('nextPage').disabled = currentPage >= totalPages;
+
+        // Afficher ou masquer l'état vide
+        if (filteredPatients.length === 0) {
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('patientsTableBody').innerHTML = '';
+        } else {
+            document.getElementById('emptyState').classList.add('hidden');
+            renderPatientsTable(pagePatients);
+        }
+    }
+
+    // Rendre le tableau des patients
+    function renderPatientsTable(patients) {
+        const tbody = document.getElementById('patientsTableBody');
+        tbody.innerHTML = '';
+
+        patients.forEach(patient => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+
+            // Informations patient
+            const details = patient.details || {};
+            const patientDetails = details.detail_patient || {};
+
+            // Date de naissance
+            const birthDate = patientDetails.date_naissance ?
+                new Date(patientDetails.date_naissance).toLocaleDateString('fr-FR') :
+                'Non renseignée';
+
+            // Âge
+            const age = patientDetails.date_naissance ?
+                new Date().getFullYear() - new Date(patientDetails.date_naissance).getFullYear() :
+                'N/A';
+
+            // Statut médical
+            const statusMap = {
+                'actif': { class: 'bg-green-100 text-green-800', text: 'Actif' },
+                'inactif': { class: 'bg-yellow-100 text-yellow-800', text: 'Inactif' },
+                'decede': { class: 'bg-red-100 text-red-800', text: 'Décédé' }
+            };
+            const status = statusMap[patientDetails.statut] || { class: 'bg-gray-100 text-gray-800', text: 'Inconnu' };
+
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 mr-3 bg-green-100 rounded-full">
+                            <span class="font-bold text-green-600">${(patient.prenom || 'P')[0].toUpperCase()}</span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900">${patient.prenom || ''} ${patient.nom || ''}</div>
+                            <div class="text-sm text-gray-500">${patient.email || ''}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${age} ans</div>
+                    <div class="text-sm text-gray-500">${patientDetails.sexe || 'Non spécifié'}</div>
+                    <div class="text-xs text-gray-400">${birthDate}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">À assigner</div>
+                    <div class="text-xs text-gray-500">Secteur non défini</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.class}">
+                        ${status.text}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                    ${patientDetails.updated_at ?
+                    new Date(patientDetails.updated_at).toLocaleDateString('fr-FR') :
+                    'Jamais'}
+                </td>
+                <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                    <button onclick="viewPatient(${patient.id})" class="mr-3 text-blue-600 hover:text-blue-900">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button onclick="editPatient(${patient.id})" class="mr-3 text-yellow-600 hover:text-yellow-900">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="showDeletePatientModal(${patient.id})" class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // Filtrer les patients
+    function filterPatients() {
+        currentPage = 1;
+        displayPatients();
+    }
+
+    // Réinitialiser les filtres
+    function resetFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('sectorFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        filterPatients();
+    }
+
+    // Changer de page
+    function changePage(direction) {
+        currentPage += direction;
+        displayPatients();
+    }
+
+    // Rafraîchir les patients
+    function refreshPatients() {
+        loadPatients();
+    }
+
+    // Exporter les patients
+    function exportPatients() {
+        alert('Exportation des patients (fonctionnalité à implémenter)');
+    }
+
+    // Voir les détails d'un patient
+    function viewPatient(patientId) {
+        window.location.href = `/dashboard/patient/${patientId}`;
+    }
+
+    // Modifier un patient
+    function editPatient(patientId) {
+        alert(`Modification du patient ${patientId} (fonctionnalité à implémenter)`);
+    }
+
+    // Afficher le modal d'ajout
+    function showAddPatientModal() {
+        // À implémenter
+        alert('Ajout d\'un patient (fonctionnalité à implémenter)');
+    }
+
+    // Afficher le modal de suppression
+    function showDeletePatientModal(patientId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce patient ?')) {
+            deletePatient(patientId);
+        }
+    }
+
+    // Supprimer un patient
+    async function deletePatient(patientId) {
+        try {
+            const response = await fetch(`/api/utilisateurs/${patientId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    loadPatients(); // Recharger la liste
+                    alert('Patient supprimé avec succès');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    // Afficher l'état de chargement
+    function showLoading() {
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('patientsTableBody').innerHTML = '';
+    }
+
+    // Cacher l'état de chargement
+    function hideLoading() {
+        document.getElementById('loadingState').classList.add('hidden');
+    }
+
+    // Charger les patients au démarrage
+    document.addEventListener('DOMContentLoaded', loadPatients);
+
+
+    /* 
+        AJOUT ICI
+    */
+    // Modifier la fonction loadPatients pour charger les secteurs
+    async function loadPatients() {
+        showLoading();
+
+        try {
+            // Charger les patients
+            const response = await fetch('/api/utilisateurs/role/patient');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    allPatients = data.resultats || [];
+
+                    // Pour chaque patient, charger les détails supplémentaires
+                    for (let patient of allPatients) {
+                        try {
+                            // Charger les détails patient
+                            const detailResponse = await fetch(`/api/utilisateurs/${patient.id}`);
+                            if (detailResponse.ok) {
+                                const detailData = await detailResponse.json();
+                                if (detailData.success && detailData.resultat) {
+                                    patient.details = detailData.resultat;
+                                }
+                            }
+
+                            // Charger le secteur actuel
+                            const sectorResponse = await fetch(`/api/patients-secteurs/secteur-actuel/${patient.id}`);
+                            if (sectorResponse.ok) {
+                                const sectorData = await sectorResponse.json();
+                                if (sectorData.success) {
+                                    patient.current_sector = sectorData.affectation?.secteur;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Erreur chargement détails:', error);
+                        }
+                    }
+
+                    displayPatients();
+                }
+            }
+
+            // Charger les secteurs
+            await loadSectorsForPatients();
+
+            // Charger les statistiques
+            await loadStatistics();
+
+        } catch (error) {
+            console.error('Erreur:', error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Charger les secteurs pour les patients
+    async function loadSectorsForPatients() {
+        try {
+            const response = await fetch('/api/secteurs/');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    allSectorsForPatients = data.secteurs || [];
+                    populateSectorFilter();
+                    populateModalSectors();
+                }
+            }
+        } catch (error) {
+            console.error('Erreur chargement secteurs:', error);
+        }
+    }
+
+    // Peupler le sélecteur de secteurs dans le modal
+    function populateModalSectors() {
+        const sectorSelect = document.getElementById('modalSecteur');
+        sectorSelect.innerHTML = '<option value="">Aucun secteur</option>';
+
+        allSectorsForPatients.forEach(sector => {
+            const option = document.createElement('option');
+            option.value = sector.id;
+            option.textContent = `${sector.nom} (${sector.ville || 'Non spécifié'})`;
+            sectorSelect.appendChild(option);
+        });
+    }
+
+    // Modifier la fonction renderPatientsTable pour inclure le secteur
+    function renderPatientsTable(patients) {
+        const tbody = document.getElementById('patientsTableBody');
+        tbody.innerHTML = '';
+
+        patients.forEach(patient => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+
+            // Informations patient
+            const details = patient.details || {};
+            const patientDetails = details.detail_patient || {};
+
+            // Date de naissance
+            const birthDate = patientDetails.date_naissance ?
+                new Date(patientDetails.date_naissance).toLocaleDateString('fr-FR') :
+                'Non renseignée';
+
+            // Âge
+            const age = patientDetails.date_naissance ?
+                new Date().getFullYear() - new Date(patientDetails.date_naissance).getFullYear() :
+                'N/A';
+
+            // Statut médical
+            const statusMap = {
+                'actif': { class: 'bg-green-100 text-green-800', text: 'Actif' },
+                'inactif': { class: 'bg-yellow-100 text-yellow-800', text: 'Inactif' },
+                'decede': { class: 'bg-red-100 text-red-800', text: 'Décédé' }
+            };
+            const status = statusMap[patientDetails.statut] || { class: 'bg-gray-100 text-gray-800', text: 'Inconnu' };
+
+            // Secteur actuel
+            const secteur = patient.current_sector ?
+                patient.current_sector.nom : 'Non affecté';
+
+            row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-10 h-10 mr-3 bg-green-100 rounded-full">
+                        <span class="font-bold text-green-600">${(patient.prenom || 'P')[0].toUpperCase()}</span>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-900">${patient.prenom || ''} ${patient.nom || ''}</div>
+                        <div class="text-sm text-gray-500">${patient.email || ''}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${age} ans</div>
+                <div class="text-sm text-gray-500">${patientDetails.sexe || 'Non spécifié'}</div>
+                <div class="text-xs text-gray-400">${birthDate}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${secteur}</div>
+                ${patient.current_sector && patient.current_sector.chef_secteur ?
+                    `<div class="text-xs text-gray-500">Chef: ${patient.current_sector.chef_secteur.prenom} ${patient.current_sector.chef_secteur.nom}</div>` : ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.class}">
+                    ${status.text}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                ${patientDetails.updated_at ?
+                    new Date(patientDetails.updated_at).toLocaleDateString('fr-FR') :
+                    'Jamais'}
+            </td>
+            <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                <button onclick="viewPatient(${patient.id})" class="mr-3 text-blue-600 hover:text-blue-900" title="Voir détails">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button onclick="editPatient(${patient.id})" class="mr-3 text-yellow-600 hover:text-yellow-900" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="showDeletePatientModal(${patient.id})" class="text-red-600 hover:text-red-900" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // Afficher le modal d'ajout
+    function showAddPatientModal() {
+        document.getElementById('patientModalTitle').textContent = 'Nouveau patient';
+        document.getElementById('patientId').value = '';
+        document.getElementById('modalPrenom').value = '';
+        document.getElementById('modalNom').value = '';
+        document.getElementById('modalEmail').value = '';
+        document.getElementById('modalUsername').value = '';
+        document.getElementById('modalPhone').value = '';
+        document.getElementById('modalBirthDate').value = '';
+        document.getElementById('modalSexe').value = '';
+        document.getElementById('modalStatus').value = 'actif';
+        document.getElementById('modalAddress').value = '';
+        document.getElementById('modalSecteur').value = '';
+        document.getElementById('modalPassword').value = '';
+        document.getElementById('passwordHelp').textContent = 'Laissez vide pour générer un mot de passe aléatoire';
+        document.getElementById('modalError').classList.add('hidden');
+
+        document.getElementById('patientModal').classList.remove('hidden');
+    }
+
+    // Modifier un patient
+    async function editPatient(patientId) {
+        try {
+            const response = await fetch(`/api/utilisateurs/${patientId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const patient = data.resultat;
+                    const details = patient.details_patient || {};
+
+                    document.getElementById('patientModalTitle').textContent = 'Modifier le patient';
+                    document.getElementById('patientId').value = patient.id;
+                    document.getElementById('modalPrenom').value = patient.prenom || '';
+                    document.getElementById('modalNom').value = patient.nom || '';
+                    document.getElementById('modalEmail').value = patient.email || '';
+                    document.getElementById('modalUsername').value = patient.nom_utilisateur || '';
+                    document.getElementById('modalPhone').value = patient.telephone || '';
+                    document.getElementById('modalBirthDate').value = details.date_naissance || '';
+                    document.getElementById('modalSexe').value = details.sexe || '';
+                    document.getElementById('modalStatus').value = details.statut || 'actif';
+                    document.getElementById('modalAddress').value = details.adresse || '';
+                    document.getElementById('modalPassword').value = '';
+                    document.getElementById('passwordHelp').textContent = 'Laissez vide pour ne pas modifier le mot de passe';
+                    document.getElementById('modalError').classList.add('hidden');
+
+                    // Charger le secteur actuel du patient
+                    const sectorResponse = await fetch(`/api/patients-secteurs/secteur-actuel/${patientId}`);
+                    if (sectorResponse.ok) {
+                        const sectorData = await sectorResponse.json();
+                        if (sectorData.success && sectorData.affectation?.secteur) {
+                            document.getElementById('modalSecteur').value = sectorData.affectation.secteur.id;
+                        }
+                    }
+
+                    document.getElementById('patientModal').classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    // Cacher le modal patient
+    function hidePatientModal() {
+        document.getElementById('patientModal').classList.add('hidden');
+    }
+
+    // Sauvegarder le patient
+    async function savePatient() {
+        const patientId = document.getElementById('patientId').value;
+        const isEdit = !!patientId;
+
+        const patientData = {
+            prenom: document.getElementById('modalPrenom').value,
+            nom: document.getElementById('modalNom').value,
+            email: document.getElementById('modalEmail').value,
+            nom_utilisateur: document.getElementById('modalUsername').value,
+            telephone: document.getElementById('modalPhone').value || null,
+            role: 'patient',
+            est_actif: true
+        };
+
+        // Détails patient
+        const detailsData = {
+            date_naissance: document.getElementById('modalBirthDate').value,
+            sexe: document.getElementById('modalSexe').value || null,
+            adresse: document.getElementById('modalAddress').value || null,
+            statut: document.getElementById('modalStatus').value
+        };
+
+        patientData.details_patient = detailsData;
+
+        // Mot de passe (uniquement pour la création)
+        if (!isEdit || document.getElementById('modalPassword').value) {
+            const password = document.getElementById('modalPassword').value;
+            if (password) {
+                patientData.mot_de_passe = password;
+            } else if (!isEdit) {
+                // Générer un mot de passe aléatoire pour la création
+                patientData.mot_de_passe = Math.random().toString(36).slice(-8);
+            }
+        }
+
+        // Secteur sélectionné
+        const secteurId = document.getElementById('modalSecteur').value;
+
+        // Désactiver le bouton pendant la sauvegarde
+        const saveBtn = document.getElementById('modalSaveBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="mr-2 fas fa-spinner fa-spin"></i>Enregistrement...';
+
+        try {
+            let response;
+            if (isEdit) {
+                response = await fetch(`/api/utilisateurs/${patientId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(patientData)
+                });
+            } else {
+                response = await fetch('/api/utilisateurs/creer-patient', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(patientData)
+                });
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const savedPatientId = data.utilisateur_id || data.resultat?.id || patientId;
+
+                    // Gérer l'affectation au secteur
+                    if (secteurId) {
+                        await assignPatientToSector(savedPatientId, secteurId);
+                    }
+
+                    hidePatientModal();
+                    loadPatients(); // Recharger la liste
+                    showSuccess(isEdit ? 'Patient modifié avec succès' : 'Patient créé avec succès');
+                } else {
+                    showModalError(data.message || 'Erreur lors de la sauvegarde');
+                }
+            } else {
+                showModalError('Erreur serveur lors de la sauvegarde');
+            }
+        } catch (error) {
+            showModalError('Erreur de connexion au serveur');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = 'Enregistrer';
+        }
+    }
+
+    // Assigner un patient à un secteur
+    async function assignPatientToSector(patientId, secteurId) {
+        try {
+            const response = await fetch(`/api/secteurs/${secteurId}/patients/${patientId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            return response.ok;
+        } catch (error) {
+            console.error('Erreur affectation secteur:', error);
+            return false;
+        }
+    }
+
+    // Afficher les détails d'un patient
+    async function viewPatient(patientId) {
+        currentDetailPatientId = patientId;
+
+        try {
+            const response = await fetch(`/api/utilisateurs/${patientId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const patient = data.resultat;
+                    const details = patient.details_patient || {};
+
+                    // Charger le secteur actuel
+                    let currentSector = null;
+                    const sectorResponse = await fetch(`/api/patients-secteurs/secteur-actuel/${patientId}`);
+                    if (sectorResponse.ok) {
+                        const sectorData = await sectorResponse.json();
+                        if (sectorData.success && sectorData.affectation?.secteur) {
+                            currentSector = sectorData.affectation.secteur;
+                        }
+                    }
+
+                    // Charger l'historique des affectations
+                    let affectationHistory = [];
+                    const historyResponse = await fetch(`/api/patients-secteurs/historique/${patientId}`);
+                    if (historyResponse.ok) {
+                        const historyData = await historyResponse.json();
+                        if (historyData.success) {
+                            affectationHistory = historyData.historique || [];
+                        }
+                    }
+
+                    document.getElementById('patientDetailTitle').textContent =
+                        `Détails patient: ${patient.prenom || ''} ${patient.nom || ''}`;
+
+                    const age = details.date_naissance ?
+                        new Date().getFullYear() - new Date(details.date_naissance).getFullYear() : 'N/A';
+
+                    const patientDetailContent = document.getElementById('patientDetailContent');
+                    patientDetailContent.innerHTML = `
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div>
+                            <h4 class="mb-4 text-lg font-medium text-gray-900">Informations personnelles</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Nom complet</label>
+                                    <p class="mt-1 text-gray-900">${patient.prenom || ''} ${patient.nom || ''}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Âge</label>
+                                    <p class="mt-1 text-gray-900">${age} ans</p>
+                                    <p class="text-sm text-gray-500">Né(e) le ${details.date_naissance ? new Date(details.date_naissance).toLocaleDateString('fr-FR') : 'Non renseignée'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Sexe</label>
+                                    <p class="mt-1 text-gray-900">${details.sexe === 'M' ? 'Masculin' : details.sexe === 'F' ? 'Féminin' : 'Non spécifié'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="mb-4 text-lg font-medium text-gray-900">Contact</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Email</label>
+                                    <p class="mt-1 text-gray-900">${patient.email || 'Non renseigné'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Téléphone</label>
+                                    <p class="mt-1 text-gray-900">${details.telephone || patient.telephone || 'Non renseigné'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Adresse</label>
+                                    <p class="mt-1 text-gray-900">${details.adresse || 'Non renseignée'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-8 mt-8 border-t border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-medium text-gray-900">Secteur affecté</h4>
+                            <button onclick="hidePatientDetailModal(); editPatient(${patient.id})"
+                                class="px-4 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-md hover:bg-green-50">
+                                <i class="mr-2 fas fa-exchange-alt"></i>
+                                Changer de secteur
+                            </button>
+                        </div>
+                        
+                        ${currentSector ? `
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <div class="flex items-center">
+                                <i class="mr-3 text-blue-600 fas fa-map-marker-alt"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900">${currentSector.nom}</p>
+                                    <p class="text-sm text-gray-500">
+                                        ${currentSector.ville ? `${currentSector.ville}, ` : ''}
+                                        ${currentSector.region || ''}
+                                    </p>
+                                    ${currentSector.chef_secteur ? `
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Chef de secteur: ${currentSector.chef_secteur.prenom} ${currentSector.chef_secteur.nom}
+                                    </p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="p-4 border border-yellow-200 rounded-lg bg-yellow-50">
+                            <div class="flex items-center">
+                                <i class="mr-3 text-yellow-600 fas fa-exclamation-triangle"></i>
+                                <div>
+                                    <p class="font-medium text-gray-900">Aucun secteur affecté</p>
+                                    <p class="text-sm text-gray-500">Ce patient n'est pas encore affecté à un secteur.</p>
+                                </div>
+                            </div>
+                        </div>
+                        `}
+                    </div>
+                    
+                    ${affectationHistory.length > 0 ? `
+                    <div class="pt-8 mt-8 border-t border-gray-200">
+                        <h4 class="mb-4 text-lg font-medium text-gray-900">Historique des affectations</h4>
+                        <div class="overflow-hidden border border-gray-200 rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                            Secteur
+                                        </th>
+                                        <th class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                            Date d'affectation
+                                        </th>
+                                        <th class="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                            Durée
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    ${affectationHistory.map(aff => `
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            <div class="text-sm font-medium text-gray-900">${aff.secteur?.nom || 'Inconnu'}</div>
+                                            <div class="text-xs text-gray-500">${aff.secteur?.ville || ''}</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-900">
+                                            ${aff.date_affectation ? new Date(aff.date_affectation).toLocaleDateString('fr-FR') : 'Non spécifiée'}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">
+                                            ${aff.date_affectation ?
+                            `${Math.floor((new Date() - new Date(aff.date_affectation)) / (1000 * 60 * 60 * 24))} jours` :
+                            'N/A'}
+                                        </td>
+                                    </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="flex justify-end pt-8 mt-8 space-x-3 border-t border-gray-200">
+                        <button type="button" onclick="hidePatientDetailModal()"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Fermer
+                        </button>
+                        <button type="button" onclick="hidePatientDetailModal(); editPatient(${patient.id})"
+                            class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700">
+                            <i class="mr-2 fas fa-edit"></i>
+                            Modifier
+                        </button>
+                    </div>
+                `;
+
+                    document.getElementById('patientDetailModal').classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    // Cacher le modal détails patient
+    function hidePatientDetailModal() {
+        document.getElementById('patientDetailModal').classList.add('hidden');
+        currentDetailPatientId = null;
+    }
+
+    // Améliorer la fonction deletePatient
+    async function deletePatient(patientId) {
+        try {
+            const response = await fetch(`/api/utilisateurs/${patientId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    loadPatients(); // Recharger la liste
+                    showSuccess('Patient supprimé avec succès');
+                } else {
+                    showError(data.message || 'Erreur lors de la suppression');
+                }
+            } else {
+                showError('Erreur serveur lors de la suppression');
+            }
+        } catch (error) {
+            showError('Erreur de connexion au serveur');
+        }
+    }
+
+    // Améliorer la fonction filterPatients pour inclure le filtre secteur
+    function filterPatients() {
+        const search = document.getElementById('search').value.toLowerCase();
+        const sectorFilter = document.getElementById('sectorFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        // Filtrer les patients
+        let filteredPatients = allPatients.filter(patient => {
+            const matchesSearch =
+                (patient.prenom && patient.prenom.toLowerCase().includes(search)) ||
+                (patient.nom && patient.nom.toLowerCase().includes(search)) ||
+                (patient.email && patient.email.toLowerCase().includes(search));
+
+            const matchesSector = !sectorFilter ||
+                (patient.current_sector && patient.current_sector.id.toString() === sectorFilter);
+
+            const matchesStatus = !statusFilter ||
+                (patient.details &&
+                    patient.details.detail_patient &&
+                    patient.details.detail_patient.statut === statusFilter);
+
+            return matchesSearch && matchesSector && matchesStatus;
+        });
+
+        // Mettre à jour le compteur
+        document.getElementById('patientCount').textContent = filteredPatients.length;
+        document.getElementById('totalPatientsCount').textContent = filteredPatients.length;
+
+        // Pagination
+        const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, filteredPatients.length);
+        const pagePatients = filteredPatients.slice(startIndex, endIndex);
+
+        // Mettre à jour les infos de pagination
+        document.getElementById('startIndex').textContent = startIndex + 1;
+        document.getElementById('endIndex').textContent = endIndex;
+        document.getElementById('currentPage').textContent = currentPage;
+        document.getElementById('prevPage').disabled = currentPage <= 1;
+        document.getElementById('nextPage').disabled = currentPage >= totalPages;
+
+        // Afficher ou masquer l'état vide
+        if (filteredPatients.length === 0) {
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('patientsTableBody').innerHTML = '';
+        } else {
+            document.getElementById('emptyState').classList.add('hidden');
+            renderPatientsTable(pagePatients);
+        }
+    }
+
+    // Fonction pour afficher une erreur dans le modal
+    function showModalError(message) {
+        const errorDiv = document.getElementById('modalError');
+        const errorText = document.getElementById('modalErrorText');
+        errorText.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    // Fonction pour afficher un succès
+    function showSuccess(message) {
+        alert(message);
+    }
+
+    // Fonction pour afficher une erreur
+    function showError(message) {
+        alert('Erreur: ' + message);
+    }
+</script>
+{% endblock %}

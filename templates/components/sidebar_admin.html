@@ -1,0 +1,99 @@
+<div class="pb-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Administration
+    </h3>
+    <div class="space-y-1">
+        <a href="{{ url_for('admin_users') }}"
+            class="nav-item {% if request.endpoint == 'admin_users' %}active{% endif %}">
+            <i class="fas fa-user-cog"></i>
+            <span>Gestion utilisateurs</span>
+        </a>
+
+        <a href="{{ url_for('admin_patients') }}"
+            class="nav-item {% if request.endpoint == 'admin_patients' %}active{% endif %}">
+            <i class="fas fa-user-injured"></i>
+            <span>Gestion patients</span>
+        </a>
+
+        <a href="{{ url_for('admin_staff') }}"
+            class="nav-item {% if request.endpoint == 'admin_staff' %}active{% endif %}">
+            <i class="fas fa-user-md"></i>
+            <span>Gestion personnel</span>
+        </a>
+    </div>
+</div>
+
+<div class="py-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Organisation
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/admin/planning"
+            class="nav-item {% if request.endpoint == 'admin_planning' %}active{% endif %}">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Planification</span>
+        </a>
+
+        <a href="{{ url_for('admin_secteurs') }}"
+            class="nav-item {% if request.endpoint == 'admin_secteurs' %}active{% endif %}">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Gestion secteurs</span>
+        </a>
+
+        <a href="/dashboard/admin/affectations"
+            class="nav-item {% if request.endpoint == 'admin_affectations' %}active{% endif %}">
+            <i class="fas fa-network-wired"></i>
+            <span>Affectations</span>
+        </a>
+    </div>
+</div>
+
+<div class="py-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Supervision
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/admin/statistiques"
+            class="nav-item {% if request.endpoint == 'admin_statistics' %}active{% endif %}">
+            <i class="fas fa-chart-pie"></i>
+            <span>Statistiques</span>
+        </a>
+
+        <a href="/dashboard/admin/alertes"
+            class="nav-item {% if request.endpoint == 'admin_global_alerts' %}active{% endif %}">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Alertes globales</span>
+            <span id="admin-alertes-count"
+                class="hidden px-2 py-1 ml-auto text-xs font-medium text-white rounded-full bg-health-critical">0</span>
+        </a>
+
+        <a href="/dashboard/admin/audit"
+            class="nav-item {% if request.endpoint == 'admin_audit_logs' %}active{% endif %}">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Audit & logs</span>
+        </a>
+    </div>
+</div>
+
+<div class="pt-4">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Configuration
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/admin/parametres"
+            class="nav-item {% if request.endpoint == 'admin_system_settings' %}active{% endif %}">
+            <i class="fas fa-cogs"></i>
+            <span>Paramètres système</span>
+        </a>
+
+        <a href="/dashboard/admin/seuils" class="nav-item {% if request.endpoint == 'admin_seuils' %}active{% endif %}">
+            <i class="fas fa-sliders-h"></i>
+            <span>Seuils d'alertes</span>
+        </a>
+
+        <a href="/dashboard/admin/vitaux" class="nav-item {% if request.endpoint == 'admin_vitaux' %}active{% endif %}">
+            <i class="fas fa-heartbeat"></i>
+            <span>Paramètres vitaux</span>
+        </a>
+    </div>
+</div>

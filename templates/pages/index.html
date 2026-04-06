@@ -1,0 +1,389 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Accueil - SPAD{% endblock %}
+
+{% block body %}
+<!-- Header Navigation -->
+<header class="fixed top-0 z-50 w-full bg-white shadow-sm">
+    <div class="container px-4 py-3 mx-auto lg:px-8">
+        <div class="flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('index') }}" class="flex items-center space-x-3">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SPAD Logo" class="w-12 h-12">
+                    <div>
+                        <span class="text-2xl font-bold text-spad-700 font-display">SPAD</span>
+                        <p class="text-xs text-spad-secondary">Suivi Personnes Âgées Domicile</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Menu Desktop -->
+            <div class="items-center hidden space-x-8 md:flex">
+                <a href="#presentation"
+                    class="font-medium transition-colors duration-200 text-neutral-700 hover:text-spad-primary hover:underline">Présentation</a>
+                <a href="#fonctionnalites"
+                    class="font-medium transition-colors duration-200 text-neutral-700 hover:text-spad-primary hover:underline">Fonctionnalités</a>
+                <a href="#contact"
+                    class="font-medium transition-colors duration-200 text-neutral-700 hover:text-spad-primary hover:underline">Contact</a>
+                <a href="{{ url_for('login') }}"
+                    class="px-6 py-2.5 font-medium text-white rounded-lg bg-spad-700 hover:bg-spad-800 transition-colors duration-200">
+                    Connexion
+                </a>
+            </div>
+
+            <!-- Menu Mobile Toggle -->
+            <button id="mobile-menu-button" class="text-neutral-700 md:hidden">
+                <i class="text-2xl fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden mt-4 space-y-4 md:hidden">
+            <a href="#presentation"
+                class="block py-2 font-medium text-neutral-700 hover:text-spad-primary">Présentation</a>
+            <a href="#fonctionnalites"
+                class="block py-2 font-medium text-neutral-700 hover:text-spad-primary">Fonctionnalités</a>
+            <a href="#contact" class="block py-2 font-medium text-neutral-700 hover:text-spad-primary">Contact</a>
+            <a href="{{ url_for('login') }}"
+                class="block px-4 py-3 mt-4 font-medium text-center text-white rounded-lg bg-spad-primary">
+                Connexion
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="pt-24 pb-16 bg-white border-b-2 md:pt-14 md:pb-0">
+    <div class="container px-4 mx-auto lg:px-8">
+        <div class="flex flex-col items-center lg:flex-row lg:gap-12">
+            <!-- Texte -->
+            <div class="mb-12 lg:w-1/2 lg:mb-0">
+                <h1 class="mb-6 text-4xl font-bold text-neutral-900 md:text-5xl lg:text-6xl font-display">
+                    Suivi des Personnes
+                    <span class="text-spad-secondary">
+                        Âgées à Domicile
+                    </span>
+                </h1>
+                <p class="mb-8 text-lg text-neutral-600 md:text-xl">
+                    Une plateforme innovante pour le suivi médical personnalisé des seniors à domicile.
+                    Connectez patients, familles, soignants et médecins en toute simplicité et sécurité.
+                </p>
+                <div class="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+                    <a href="{{ url_for('login') }}"
+                        class="px-8 py-3.5 text-lg font-medium text-center text-white rounded-lg bg-spad-700 hover:bg-spad-800 transition-colors duration-200">
+                        <i class="mr-2 fas fa-sign-in-alt"></i>
+                        Accéder au Portail
+                    </a>
+                    <a href="#presentation"
+                        class="px-8 py-3.5 text-lg font-medium text-center border rounded-lg text-spad-secondary border-spad-secondary hover:bg-spad-50 transition-colors duration-200">
+                        <i class="mr-2 fas fa-info-circle"></i>
+                        En savoir plus
+                    </a>
+                </div>
+
+                <!-- Points forts rapides -->
+                <div class="flex flex-wrap gap-4 mt-8">
+                    <div class="flex items-center text-sm text-spad-secondary">
+                        <i class="mr-2 fas fa-shield-alt"></i>
+                        <span>Données sécurisées</span>
+                    </div>
+                    <div class="flex items-center text-sm text-spad-secondary">
+                        <i class="mr-2 fas fa-clock"></i>
+                        <span>Surveillance 24/7</span>
+                    </div>
+                    <div class="flex items-center text-sm text-spad-secondary">
+                        <i class="mr-2 fas fa-user-md"></i>
+                        <span>Équipe médicale</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Hero - sans bordures ni ombres -->
+            <div class="lg:w-1/2">
+                <img src="{{ url_for('static', filename='images/hero-doctor.png') }}"
+                    alt="Médecin accompagnant une personne âgée" class="w-full max-w-2xl mx-auto">
+
+                <!-- Stats simples -->
+                <!-- <div class="flex justify-center gap-6 mt-8">
+                    <div class="p-4 text-center bg-white rounded-lg">
+                        <div class="text-2xl font-bold text-spad-primary">24/7</div>
+                        <div class="text-sm text-neutral-600">Surveillance</div>
+                    </div>
+                    <div class="p-4 text-center bg-white rounded-lg">
+                        <div class="text-2xl font-bold text-spad-secondary">100%</div>
+                        <div class="text-sm text-neutral-600">Sécurisé</div>
+                    </div>
+                    <div class="p-4 text-center bg-white rounded-lg">
+                        <div class="text-2xl font-bold text-spad-accent">Rapide</div>
+                        <div class="text-sm text-neutral-600">Intervention</div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Présentation -->
+<section id="presentation" class="py-16 bg-white">
+    <div class="container px-4 mx-auto lg:px-8">
+        <div class="max-w-4xl mx-auto mb-12 text-center">
+            <h2 class="mb-4 text-3xl font-bold text-neutral-900 md:text-4xl lg:text-5xl font-display">
+                Présentation de
+                <span class="text-spad-primary">SPAD</span>
+            </h2>
+            <p class="mx-auto text-lg text-neutral-600 lg:text-xl">
+                Une solution innovante et complète pour le suivi médical à domicile des personnes âgées,
+                alliant technologie de pointe et accompagnement humain.
+            </p>
+        </div>
+
+        <div class="grid gap-8 md:grid-cols-3">
+            <div
+                class="p-8 text-center transition-colors duration-200 bg-white border rounded-lg border-neutral-200 hover:border-spad-200">
+                <div class="flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-full bg-spad-100">
+                    <i class="text-3xl fas fa-heartbeat text-spad-primary"></i>
+                </div>
+                <h3 class="mb-4 text-xl font-bold text-neutral-900">Suivi Médical</h3>
+                <p class="text-neutral-600">
+                    Surveillance continue des paramètres vitaux avec alertes intelligentes et coordination
+                    directe avec les médecins traitants.
+                </p>
+            </div>
+
+            <div
+                class="p-8 text-center transition-colors duration-200 bg-white border rounded-lg border-neutral-200 hover:border-spad-green-200">
+                <div class="flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-full bg-spad-green-100">
+                    <i class="text-3xl fas fa-home text-spad-secondary"></i>
+                </div>
+                <h3 class="mb-4 text-xl font-bold text-neutral-900">À Domicile</h3>
+                <p class="text-neutral-600">
+                    Maintien à domicile dans le confort et la sécurité, avec un accompagnement
+                    personnalisé par des professionnels de santé.
+                </p>
+            </div>
+
+            <div
+                class="p-8 text-center transition-colors duration-200 bg-white border rounded-lg border-neutral-200 hover:border-spad-blue-200">
+                <div class="flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-full bg-spad-blue-100">
+                    <i class="text-3xl fas fa-shield-alt text-spad-accent"></i>
+                </div>
+                <h3 class="mb-4 text-xl font-bold text-neutral-900">Sécurité Totale</h3>
+                <p class="text-neutral-600">
+                    Système d'alertes automatiques, géolocalisation, et intervention rapide
+                    des équipes médicales en cas de besoin.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Fonctionnalités -->
+<section id="fonctionnalites" class="py-16 bg-neutral">
+    <div class="container px-4 mx-auto lg:px-8">
+        <div class="max-w-4xl mx-auto mb-12 text-center">
+            <h2 class="mb-4 text-3xl font-bold text-neutral-900 md:text-4xl lg:text-5xl font-display">
+                Fonctionnalités
+                <span class="text-spad-secondary">Principales</span>
+            </h2>
+            <p class="mx-auto text-lg text-neutral-600 lg:text-xl">
+                Découvrez les outils puissants et intuitifs de notre plateforme
+            </p>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {% set features = [
+            {'icon': 'heartbeat', 'title': 'Paramètres Vitaux', 'desc': 'Surveillance en temps réel', 'color':
+            'text-spad-primary', 'bg': 'bg-spad-100'},
+            {'icon': 'calendar-check', 'title': 'Planning', 'desc': 'Gestion des rendez-vous', 'color':
+            'text-spad-secondary', 'bg': 'bg-spad-green-100'},
+            {'icon': 'bell', 'title': 'Alertes Intelligentes', 'desc': 'Notifications en temps réel', 'color':
+            'text-spad-accent', 'bg': 'bg-spad-blue-100'},
+            {'icon': 'comments', 'title': 'Messagerie Sécurisée', 'desc': 'Communication chiffrée', 'color':
+            'text-spad-primary', 'bg': 'bg-spad-100'},
+            {'icon': 'file-medical', 'title': 'Dossiers Médicaux', 'desc': 'Documents centralisés', 'color':
+            'text-spad-secondary', 'bg': 'bg-spad-green-100'},
+            {'icon': 'chart-line', 'title': 'Statistiques', 'desc': 'Tableaux de bord avancés', 'color':
+            'text-spad-accent', 'bg': 'bg-spad-blue-100'},
+            {'icon': 'map-marker-alt', 'title': 'Géolocalisation', 'desc': 'Suivi des interventions', 'color':
+            'text-spad-primary', 'bg': 'bg-spad-100'},
+            {'icon': 'user-shield', 'title': 'Sécurité RGPD', 'desc': 'Données cryptées', 'color':
+            'text-spad-secondary', 'bg': 'bg-spad-green-100'}
+            ] %}
+
+            {% for feature in features %}
+            <div
+                class="p-6 transition-colors duration-200 bg-white border rounded-lg border-neutral-200 hover:border-neutral-300">
+                <div class="flex items-center justify-center w-12 h-12 mb-4 rounded-lg {{ feature.bg }}">
+                    <i class="text-xl fas fa-{{ feature.icon }} {{ feature.color }}"></i>
+                </div>
+                <h3 class="mb-2 font-bold text-neutral-900">{{ feature.title }}</h3>
+                <p class="text-sm text-neutral-600">{{ feature.desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Pour qui ? -->
+<section class="py-16 bg-white">
+    <div class="container px-4 mx-auto lg:px-8">
+        <div class="max-w-4xl mx-auto mb-12 text-center">
+            <h2 class="mb-4 text-3xl font-bold text-neutral-900 md:text-4xl lg:text-5xl font-display">
+                Pour
+                <span class="text-spad-primary">Qui</span>
+                ?
+            </h2>
+            <p class="mx-auto text-lg text-neutral-600 lg:text-xl">
+                Une plateforme adaptée à tous les acteurs du suivi médical à domicile
+            </p>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-5">
+            {% set roles = [
+            {'icon': 'user-injured', 'title': 'Patients', 'color': 'text-spad-primary', 'bg': 'bg-spad-100'},
+            {'icon': 'user-nurse', 'title': 'Prestataires', 'color': 'text-spad-secondary', 'bg': 'bg-spad-green-100'},
+            {'icon': 'user-md', 'title': 'Médecins', 'color': 'text-spad-primary', 'bg': 'bg-spad-100'},
+            {'icon': 'user-tie', 'title': 'Chefs Secteur', 'color': 'text-spad-secondary', 'bg': 'bg-spad-green-100'},
+            {'icon': 'user-cog', 'title': 'Administrateurs', 'color': 'text-spad-accent', 'bg': 'bg-spad-blue-100'}
+            ] %}
+
+            {% for role in roles %}
+            <div
+                class="p-6 text-center transition-colors duration-200 bg-white border rounded-lg border-neutral-200 hover:border-neutral-300">
+                <div class="flex items-center justify-center w-20 h-20 mx-auto mb-4 rounded-full {{ role.bg }}">
+                    <i class="text-3xl fas fa-{{ role.icon }} {{ role.color }}"></i>
+                </div>
+                <h3 class="mb-2 font-bold text-neutral-900">{{ role.title }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-32 bg-spad-blue-800">
+    <div class="container px-4 mx-auto text-center lg:px-8">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="mb-6 text-3xl font-bold text-white md:text-4xl lg:text-5xl font-display">
+                Prêt à utiliser <span class="text-white">SPAD</span> ?
+            </h2>
+            <p class="max-w-2xl mx-auto mb-8 text-xl text-spad-100">
+                Rejoignez notre plateforme innovante et simplifiez le suivi médical à domicile
+            </p>
+            <div class="flex flex-col justify-center gap-4 sm:flex-row">
+                <a href="{{ url_for('login') }}"
+                    class="px-10 py-4 text-lg font-bold text-white transition-colors duration-200 rounded-lg bg-spad-700 hover:bg-spad-800">
+                    <i class="mr-2 fas fa-sign-in-alt"></i>
+                    Commencer maintenant
+                </a>
+                <a href="#contact"
+                    class="px-10 py-4 text-lg font-bold text-white transition-colors duration-200 border-2 border-white rounded-lg hover:bg-white/10">
+                    <i class="mr-2 fas fa-envelope"></i>
+                    Nous contacter
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer id="contact" class="py-16 text-white bg-neutral-900">
+    <div class="container px-4 mx-auto lg:px-8">
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <div class="flex items-center mb-6 space-x-3">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SPAD Logo" class="w-12 h-12">
+                    <div>
+                        <span class="text-2xl font-bold text-white font-display">SPAD</span>
+                        <p class="text-sm text-spad-300">Suivi Personnes Âgées Domicile</p>
+                    </div>
+                </div>
+                <p class="text-neutral-300">
+                    Une solution innovante pour la santé des seniors, alliant technologie
+                    de pointe et accompagnement humain personnalisé.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="mb-4 text-lg font-bold text-white">Liens rapides</h3>
+                <ul class="space-y-3">
+                    <li><a href="#presentation"
+                            class="transition-colors duration-200 text-neutral-300 hover:text-white">Présentation</a>
+                    </li>
+                    <li><a href="#fonctionnalites"
+                            class="transition-colors duration-200 text-neutral-300 hover:text-white">Fonctionnalités</a>
+                    </li>
+                    <li><a href="{{ url_for('login') }}"
+                            class="transition-colors duration-200 text-neutral-300 hover:text-white">Connexion</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="mb-4 text-lg font-bold text-white">Contact</h3>
+                <ul class="space-y-3 text-neutral-300">
+                    <li class="flex items-start space-x-3">
+                        <i class="mt-1 fas fa-envelope text-spad-300"></i>
+                        <span>spadcameroun27@gmail.com</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <i class="mt-1 fas fa-phone text-spad-300"></i>
+                        <span>+237 XXX XX XX XX</span>
+                    </li>
+                    <li class="flex items-start space-x-3">
+                        <i class="mt-1 fas fa-map-marker-alt text-spad-300"></i>
+                        <span>Yaoundé, Cameroun</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="mb-4 text-lg font-bold text-white">Sécurité & Confidentialité</h3>
+                <p class="text-sm text-neutral-300">
+                    <i class="mr-2 fas fa-shield-alt text-spad-green-300"></i>
+                    Vos données médicales sont sécurisées et cryptées conformément au RGPD.
+                    Nous respectons la confidentialité médicale et l'éthique professionnelle.
+                </p>
+            </div>
+        </div>
+
+        <div class="pt-8 mt-8 text-center border-t border-neutral-700">
+            <p class="text-neutral-400">&copy; {{ current_year }} SPAD - Suivi des Personnes Âgées à Domicile. Tous
+                droits réservés.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Menu mobile
+    document.getElementById('mobile-menu-button').addEventListener('click', function () {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    });
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+
+            e.preventDefault();
+
+            const targetElement = document.querySelector(href);
+            if (targetElement) {
+                // Fermer le menu mobile si ouvert
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                }
+
+                // Scroll smooth
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

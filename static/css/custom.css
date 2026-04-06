@@ -1,0 +1,467 @@
+/* Variables CSS pour les couleurs SPAD - Charte officielle */
+:root {
+    /* Couleurs primaires SPAD */
+    --spad-primary: #5CC3D2;
+    /* Turquoise principal */
+    --spad-secondary: #0C8C6B;
+    /* Vert secondaire */
+    --spad-accent: #1C6AB4;
+    /* Bleu d'accent */
+
+    /* Nuances pour le turquoise */
+    --spad-turquoise-50: #f0f9fa;
+    --spad-turquoise-100: #e0f2f5;
+    --spad-turquoise-200: #bae6ec;
+    --spad-turquoise-300: #7dd3e2;
+    --spad-turquoise-400: #5cc3d2;
+    --spad-turquoise-500: #3fb3c5;
+    --spad-turquoise-600: #2a9fb3;
+    --spad-turquoise-700: #1f8a9c;
+    --spad-turquoise-800: #176e7d;
+    --spad-turquoise-900: #0f525d;
+
+    /* Nuances pour le vert */
+    --spad-green-50: #f0f8f5;
+    --spad-green-100: #d9f0e9;
+    --spad-green-200: #a8e1cd;
+    --spad-green-300: #6dcead;
+    --spad-green-400: #0c8c6b;
+    --spad-green-500: #0a7a5e;
+    --spad-green-600: #08684f;
+    --spad-green-700: #065641;
+    --spad-green-800: #044433;
+    --spad-green-900: #023226;
+
+    /* Nuances pour le bleu */
+    --spad-blue-50: #f0f7ff;
+    --spad-blue-100: #e0effe;
+    --spad-blue-200: #bad8fd;
+    --spad-blue-300: #7db9fc;
+    --spad-blue-400: #1c6ab4;
+    --spad-blue-500: #185d9e;
+    --spad-blue-600: #145088;
+    --spad-blue-700: #104372;
+    --spad-blue-800: #0c365c;
+    --spad-blue-900: #082946;
+
+    /* Couleurs de santé */
+    --health-good: #0C8C6B;
+    /* Utilise le vert SPAD */
+    --health-warning: #f59e0b;
+    --health-critical: #ef4444;
+
+    /* Couleurs neutres */
+    --neutral-50: #f9fafb;
+    --neutral-100: #f3f4f6;
+    --neutral-200: #e5e7eb;
+    --neutral-300: #d1d5db;
+    --neutral-400: #9ca3af;
+    --neutral-500: #6b7280;
+    --neutral-600: #4b5563;
+    --neutral-700: #374151;
+    --neutral-800: #1f2937;
+    --neutral-900: #111827;
+}
+
+/* Classes utilitaires pour les couleurs primaires */
+.bg-spad-primary {
+    background-color: var(--spad-primary);
+}
+
+.text-spad-primary {
+    color: var(--spad-primary);
+}
+
+.border-spad-primary {
+    border-color: var(--spad-primary);
+}
+
+.hover\:bg-spad-primary:hover {
+    background-color: var(--spad-primary);
+}
+
+.hover\:text-spad-primary:hover {
+    color: var(--spad-primary);
+}
+
+.bg-spad-secondary {
+    background-color: var(--spad-secondary);
+}
+
+.text-spad-secondary {
+    color: var(--spad-secondary);
+}
+
+.border-spad-secondary {
+    border-color: var(--spad-secondary);
+}
+
+.bg-spad-accent {
+    background-color: var(--spad-accent);
+}
+
+.text-spad-accent {
+    color: var(--spad-accent);
+}
+
+.border-spad-accent {
+    border-color: var(--spad-accent);
+}
+
+/* Classes pour le turquoise */
+.bg-spad-turquoise-50 {
+    background-color: var(--spad-turquoise-50);
+}
+
+.text-spad-turquoise-50 {
+    color: var(--spad-turquoise-50);
+}
+
+.bg-spad-turquoise-100 {
+    background-color: var(--spad-turquoise-100);
+}
+
+.text-spad-turquoise-100 {
+    color: var(--spad-turquoise-100);
+}
+
+.bg-spad-turquoise-200 {
+    background-color: var(--spad-turquoise-200);
+}
+
+.text-spad-turquoise-200 {
+    color: var(--spad-turquoise-200);
+}
+
+.bg-spad-turquoise-300 {
+    background-color: var(--spad-turquoise-300);
+}
+
+.text-spad-turquoise-300 {
+    color: var(--spad-turquoise-300);
+}
+
+.bg-spad-turquoise-400 {
+    background-color: var(--spad-turquoise-400);
+}
+
+.text-spad-turquoise-400 {
+    color: var(--spad-turquoise-400);
+}
+
+.bg-spad-turquoise-500 {
+    background-color: var(--spad-turquoise-500);
+}
+
+.text-spad-turquoise-500 {
+    color: var(--spad-turquoise-500);
+}
+
+.bg-spad-turquoise-600 {
+    background-color: var(--spad-turquoise-600);
+}
+
+.text-spad-turquoise-600 {
+    color: var(--spad-turquoise-600);
+}
+
+.bg-spad-turquoise-700 {
+    background-color: var(--spad-turquoise-700);
+}
+
+.text-spad-turquoise-700 {
+    color: var(--spad-turquoise-700);
+}
+
+.bg-spad-turquoise-800 {
+    background-color: var(--spad-turquoise-800);
+}
+
+.text-spad-turquoise-800 {
+    color: var(--spad-turquoise-800);
+}
+
+.bg-spad-turquoise-900 {
+    background-color: var(--spad-turquoise-900);
+}
+
+.text-spad-turquoise-900 {
+    color: var(--spad-turquoise-900);
+}
+
+/* Classes pour le vert */
+.bg-spad-green-50 {
+    background-color: var(--spad-green-50);
+}
+
+.text-spad-green-50 {
+    color: var(--spad-green-50);
+}
+
+.bg-spad-green-100 {
+    background-color: var(--spad-green-100);
+}
+
+.text-spad-green-100 {
+    color: var(--spad-green-100);
+}
+
+.bg-spad-green-200 {
+    background-color: var(--spad-green-200);
+}
+
+.text-spad-green-200 {
+    color: var(--spad-green-200);
+}
+
+.bg-spad-green-300 {
+    background-color: var(--spad-green-300);
+}
+
+.text-spad-green-300 {
+    color: var(--spad-green-300);
+}
+
+.bg-spad-green-400 {
+    background-color: var(--spad-green-400);
+}
+
+.text-spad-green-400 {
+    color: var(--spad-green-400);
+}
+
+.bg-spad-green-500 {
+    background-color: var(--spad-green-500);
+}
+
+.text-spad-green-500 {
+    color: var(--spad-green-500);
+}
+
+.bg-spad-green-600 {
+    background-color: var(--spad-green-600);
+}
+
+.text-spad-green-600 {
+    color: var(--spad-green-600);
+}
+
+.bg-spad-green-700 {
+    background-color: var(--spad-green-700);
+}
+
+.text-spad-green-700 {
+    color: var(--spad-green-700);
+}
+
+.bg-spad-green-800 {
+    background-color: var(--spad-green-800);
+}
+
+.text-spad-green-800 {
+    color: var(--spad-green-800);
+}
+
+.bg-spad-green-900 {
+    background-color: var(--spad-green-900);
+}
+
+.text-spad-green-900 {
+    color: var(--spad-green-900);
+}
+
+/* Classes pour le bleu */
+.bg-spad-blue-50 {
+    background-color: var(--spad-blue-50);
+}
+
+.text-spad-blue-50 {
+    color: var(--spad-blue-50);
+}
+
+.bg-spad-blue-100 {
+    background-color: var(--spad-blue-100);
+}
+
+.text-spad-blue-100 {
+    color: var(--spad-blue-100);
+}
+
+.bg-spad-blue-200 {
+    background-color: var(--spad-blue-200);
+}
+
+.text-spad-blue-200 {
+    color: var(--spad-blue-200);
+}
+
+.bg-spad-blue-300 {
+    background-color: var(--spad-blue-300);
+}
+
+.text-spad-blue-300 {
+    color: var(--spad-blue-300);
+}
+
+.bg-spad-blue-400 {
+    background-color: var(--spad-blue-400);
+}
+
+.text-spad-blue-400 {
+    color: var(--spad-blue-400);
+}
+
+.bg-spad-blue-500 {
+    background-color: var(--spad-blue-500);
+}
+
+.text-spad-blue-500 {
+    color: var(--spad-blue-500);
+}
+
+.bg-spad-blue-600 {
+    background-color: var(--spad-blue-600);
+}
+
+.text-spad-blue-600 {
+    color: var(--spad-blue-600);
+}
+
+.bg-spad-blue-700 {
+    background-color: var(--spad-blue-700);
+}
+
+.text-spad-blue-700 {
+    color: var(--spad-blue-700);
+}
+
+.bg-spad-blue-800 {
+    background-color: var(--spad-blue-800);
+}
+
+.text-spad-blue-800 {
+    color: var(--spad-blue-800);
+}
+
+.bg-spad-blue-900 {
+    background-color: var(--spad-blue-900);
+}
+
+.text-spad-blue-900 {
+    color: var(--spad-blue-900);
+}
+
+/* Classes santé */
+.text-health-good {
+    color: var(--health-good);
+}
+
+.bg-health-good {
+    background-color: var(--health-good);
+}
+
+.text-health-warning {
+    color: var(--health-warning);
+}
+
+.bg-health-warning {
+    background-color: var(--health-warning);
+}
+
+.text-health-critical {
+    color: var(--health-critical);
+}
+
+.bg-health-critical {
+    background-color: var(--health-critical);
+}
+
+/* Dégradés SPAD */
+.bg-gradient-spad {
+    background: linear-gradient(135deg, var(--spad-primary) 0%, var(--spad-secondary) 100%);
+}
+
+.bg-gradient-spad-reverse {
+    background: linear-gradient(135deg, var(--spad-secondary) 0%, var(--spad-primary) 100%);
+}
+
+.bg-gradient-spad-accent {
+    background: linear-gradient(135deg, var(--spad-primary) 0%, var(--spad-accent) 100%);
+}
+
+/* Effets de survol */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Police Montserrat pour les titres */
+.font-display {
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Animations */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Styles personnalisés */
+.btn-spad-primary {
+    background-color: var(--spad-primary);
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.btn-spad-primary:hover {
+    background-color: var(--spad-turquoise-600);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(92, 195, 210, 0.3);
+}
+
+.btn-spad-secondary {
+    background-color: var(--spad-secondary);
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.btn-spad-secondary:hover {
+    background-color: var(--spad-green-600);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(12, 140, 107, 0.3);
+}
+
+/* Style pour les cartes */
+.card-spad {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.card-spad:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}

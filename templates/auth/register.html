@@ -1,0 +1,360 @@
+{% extends "layout/auth_base.html" %}
+
+{% block title %}SPAD - Inscription{% endblock %}
+
+{% block extra_css %}
+<style>
+    .password-toggle {
+        cursor: pointer;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+    }
+
+    .password-toggle:hover {
+        color: #374151;
+    }
+
+    .password-strength {
+        height: 4px;
+        border-radius: 2px;
+        transition: all 0.3s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div
+    class="flex items-center justify-center min-h-screen px-4 py-12 bg-gradient-to-br from-blue-50 to-gray-50 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="mb-8 text-center">
+            <div class="flex items-center justify-center mb-4 space-x-3">
+                <div class="flex items-center justify-center bg-blue-600 shadow-lg h-14 w-14 rounded-xl">
+                    <i class="text-2xl text-white fas fa-heartbeat"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-blue-700 font-display">SPAD</h1>
+                    <p class="text-sm font-medium text-blue-600">Suivi Personnes Âgées à Domicile</p>
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">
+                Créer un compte
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Rejoignez notre plateforme de suivi médical
+            </p>
+        </div>
+
+        <!-- Card -->
+        <div class="p-8 bg-white shadow-xl rounded-2xl">
+            <!-- Formulaire -->
+            <form class="space-y-6" action="{{ url_for('register') }}" method="POST" id="registerForm">
+                <!-- Informations personnelles -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="first_name" class="block mb-2 text-sm font-medium text-gray-700">
+                            Prénom *
+                        </label>
+                        <input id="first_name" name="first_name" type="text" required
+                            class="block w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Jean">
+                    </div>
+                    <div>
+                        <label for="last_name" class="block mb-2 text-sm font-medium text-gray-700">
+                            Nom *
+                        </label>
+                        <input id="last_name" name="last_name" type="text" required
+                            class="block w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Dupont">
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block mb-2 text-sm font-medium text-gray-700">
+                        <i class="mr-2 text-blue-500 fas fa-envelope"></i>Adresse email *
+                    </label>
+                    <input id="email" name="email" type="email" autocomplete="email" required
+                        class="block w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="votre@email.com">
+                </div>
+
+                <!-- Nom d'utilisateur -->
+                <div>
+                    <label for="username" class="block mb-2 text-sm font-medium text-gray-700">
+                        <i class="mr-2 text-blue-500 fas fa-user"></i>Nom d'utilisateur *
+                    </label>
+                    <input id="username" name="username" type="text" required
+                        class="block w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="jean.dupont">
+                </div>
+
+                <!-- Téléphone -->
+                <div>
+                    <label for="phone" class="block mb-2 text-sm font-medium text-gray-700">
+                        <i class="mr-2 text-blue-500 fas fa-phone"></i>Téléphone
+                    </label>
+                    <input id="phone" name="phone" type="tel"
+                        class="block w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder="+33 1 23 45 67 89">
+                </div>
+
+                <!-- Rôle -->
+                <div>
+                    <label for="role" class="block mb-2 text-sm font-medium text-gray-700">
+                        <i class="mr-2 text-blue-500 fas fa-user-tag"></i>Rôle *
+                    </label>
+                    <select id="role" name="role" required
+                        class="block w-full px-4 py-3 text-gray-900 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <option value="patient">Patient</option>
+                        <option value="prestataire">Prestataire de santé</option>
+                        <option value="medecin">Médecin</option>
+                        <option value="chef_secteur">Chef de secteur</option>
+                        <option value="administrateur">Administrateur</option>
+                    </select>
+                </div>
+
+                <!-- Mot de passe avec espace et eye toggle -->
+                <div>
+                    <label for="password" class="block mb-2 text-sm font-medium text-gray-700">
+                        <i class="mr-2 text-blue-500 fas fa-lock"></i>Mot de passe *
+                    </label>
+                    <div class="relative">
+                        <input id="password" name="password" type="password" required
+                            class="block w-full px-4 py-3 pr-10 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Votre mot de passe" oninput="checkPasswordStrength()">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i id="eyeIconPassword" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <!-- Indicateur de force du mot de passe -->
+                    <div class="mt-2">
+                        <div class="flex mb-1 space-x-1">
+                            <div id="strength1" class="flex-1 bg-gray-200 password-strength"></div>
+                            <div id="strength2" class="flex-1 bg-gray-200 password-strength"></div>
+                            <div id="strength3" class="flex-1 bg-gray-200 password-strength"></div>
+                            <div id="strength4" class="flex-1 bg-gray-200 password-strength"></div>
+                        </div>
+                        <p id="strengthText" class="text-xs text-gray-500"></p>
+                    </div>
+                </div>
+
+                <!-- Confirmation mot de passe -->
+                <div>
+                    <label for="confirm_password" class="block mb-2 text-sm font-medium text-gray-700">
+                        <i class="mr-2 text-blue-500 fas fa-lock"></i>Confirmer le mot de passe *
+                    </label>
+                    <div class="relative">
+                        <input id="confirm_password" name="confirm_password" type="password" required
+                            class="block w-full px-4 py-3 pr-10 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Confirmez votre mot de passe">
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
+                            <i id="eyeIconConfirm" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p id="passwordMatch" class="hidden mt-1 text-xs"></p>
+                </div>
+
+                <!-- Message d'erreur -->
+                {% if error %}
+                <div class="p-4 border-l-4 border-red-400 bg-red-50 animate-fade-in">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="text-lg text-red-400 fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-700">{{ error }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Conditions -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="terms" name="terms" type="checkbox" required
+                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="terms" class="text-gray-700">
+                            J'accepte les <a href="#" class="text-blue-600 hover:text-blue-500">conditions
+                                d'utilisation</a>
+                            et la <a href="#" class="text-blue-600 hover:text-blue-500">politique de confidentialité</a>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bouton d'inscription -->
+                <div class="mt-6">
+                    <button type="submit" id="submitBtn"
+                        class="relative flex justify-center w-full px-4 py-3 text-sm font-medium text-white transition-all duration-300 border border-transparent rounded-lg shadow-lg group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover:shadow-xl">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i
+                                class="text-blue-200 transition duration-300 fas fa-user-plus group-hover:text-white"></i>
+                        </span>
+                        <span id="submitText">Créer mon compte</span>
+                        <span id="loadingSpinner" class="hidden ml-2">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Séparateur -->
+            <div class="mt-8">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 text-gray-500 bg-white">Déjà un compte ?</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <a href="{{ url_for('login') }}"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition duration-200 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="mr-2 fas fa-sign-in-alt"></i>
+                        Se connecter
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retour accueil -->
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('index') }}"
+                class="inline-flex items-center text-sm font-medium text-blue-600 transition duration-200 hover:text-blue-500">
+                <i class="mr-2 fas fa-arrow-left"></i>
+                Retour à la page d'accueil
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    function togglePassword(fieldId) {
+        const passwordInput = document.getElementById(fieldId);
+        const eyeIcon = document.getElementById(`eyeIcon${fieldId === 'password' ? 'Password' : 'Confirm'}`);
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Vérifier la correspondance des mots de passe
+    function checkPasswordMatch() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const matchElement = document.getElementById('passwordMatch');
+
+        if (confirmPassword === '') {
+            matchElement.classList.add('hidden');
+            return;
+        }
+
+        if (password === confirmPassword) {
+            matchElement.textContent = '✓ Les mots de passe correspondent';
+            matchElement.className = 'text-xs mt-1 text-green-600';
+            matchElement.classList.remove('hidden');
+        } else {
+            matchElement.textContent = '✗ Les mots de passe ne correspondent pas';
+            matchElement.className = 'text-xs mt-1 text-red-600';
+            matchElement.classList.remove('hidden');
+        }
+    }
+
+    // Vérifier la force du mot de passe
+    function checkPasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strength1 = document.getElementById('strength1');
+        const strength2 = document.getElementById('strength2');
+        const strength3 = document.getElementById('strength3');
+        const strength4 = document.getElementById('strength4');
+        const strengthText = document.getElementById('strengthText');
+
+        // Réinitialiser
+        [strength1, strength2, strength3, strength4].forEach(el => {
+            el.className = 'password-strength flex-1 bg-gray-200';
+        });
+
+        if (password.length === 0) {
+            strengthText.textContent = '';
+            return;
+        }
+
+        let score = 0;
+        if (password.length >= 8) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        // Mettre à jour l'indicateur visuel
+        const strengths = [strength1, strength2, strength3, strength4];
+        for (let i = 0; i < score; i++) {
+            if (score <= 1) {
+                strengths[i].className = 'password-strength flex-1 bg-red-500';
+                strengthText.textContent = 'Faible';
+                strengthText.className = 'text-xs text-red-600';
+            } else if (score <= 2) {
+                strengths[i].className = 'password-strength flex-1 bg-yellow-500';
+                strengthText.textContent = 'Moyen';
+                strengthText.className = 'text-xs text-yellow-600';
+            } else if (score <= 3) {
+                strengths[i].className = 'password-strength flex-1 bg-blue-500';
+                strengthText.textContent = 'Bon';
+                strengthText.className = 'text-xs text-blue-600';
+            } else {
+                strengths[i].className = 'password-strength flex-1 bg-green-500';
+                strengthText.textContent = 'Fort';
+                strengthText.className = 'text-xs text-green-600';
+            }
+        }
+
+        // Vérifier la correspondance
+        checkPasswordMatch();
+    }
+
+    // Écouteurs d'événements
+    document.getElementById('password').addEventListener('input', checkPasswordStrength);
+    document.getElementById('confirm_password').addEventListener('input', checkPasswordMatch);
+
+    // Form submission
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Les mots de passe ne correspondent pas !');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        submitBtn.disabled = true;
+        submitText.textContent = 'Création en cours...';
+        loadingSpinner.classList.remove('hidden');
+
+        setTimeout(() => {
+            if (!submitBtn.disabled) {
+                submitBtn.disabled = false;
+                submitText.textContent = 'Créer mon compte';
+                loadingSpinner.classList.add('hidden');
+            }
+        }, 5000);
+    });
+</script>
+{% endblock %}

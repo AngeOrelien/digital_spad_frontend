@@ -1,0 +1,74 @@
+<div class="pb-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Interventions
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/prestataire/planning"
+            class="nav-item {% if request.endpoint == 'prestataire_planning' %}active{% endif %}">
+            <i class="fas fa-calendar-day"></i>
+            <span>Planning du jour</span>
+        </a>
+
+        <a href="/dashboard/prestataire/patients"
+            class="nav-item {% if request.endpoint == 'prestataire_patients' %}active{% endif %}">
+            <i class="fas fa-users"></i>
+            <span>Mes patients</span>
+        </a>
+
+        <a href="/dashboard/prestataire/visites"
+            class="nav-item {% if request.endpoint == 'prestataire_visites' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Visites à domicile</span>
+        </a>
+    </div>
+</div>
+
+<div class="py-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Rapports & Santé
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/prestataire/rapports"
+            class="nav-item {% if request.endpoint == 'prestataire_rapports' %}active{% endif %}">
+            <i class="fas fa-file-medical-alt"></i>
+            <span>Rapports de santé</span>
+        </a>
+
+        <a href="/dashboard/prestataire/vitaux"
+            class="nav-item {% if request.endpoint == 'prestataire_vitaux' %}active{% endif %}">
+            <i class="fas fa-heartbeat"></i>
+            <span>Paramètres vitaux</span>
+        </a>
+
+        <a href="/dashboard/prestataire/alertes"
+            class="nav-item {% if request.endpoint == 'prestataire_alertes' %}active{% endif %}">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Déclarer une alerte</span>
+        </a>
+
+        <a href="/dashboard/prestataire/observations"
+            class="nav-item {% if request.endpoint == 'prestataire_observations' %}active{% endif %}">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Observations</span>
+        </a>
+    </div>
+</div>
+
+<div class="pt-4">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Coordination
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/prestataire/coordination"
+            class="nav-item {% if request.endpoint == 'prestataire_coordination' %}active{% endif %}">
+            <i class="fas fa-tasks"></i>
+            <span>Suivi interventions</span>
+        </a>
+
+        <a href="/dashboard/prestataire/documents"
+            class="nav-item {% if request.endpoint == 'prestataire_documents' %}active{% endif %}">
+            <i class="fas fa-file-upload"></i>
+            <span>Documents envoyés</span>
+        </a>
+    </div>
+</div>

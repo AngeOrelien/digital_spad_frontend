@@ -1,0 +1,76 @@
+<div class="pb-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Patients
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/medecin/patients"
+            class="nav-item {% if request.endpoint == 'medecin_patients' %}active{% endif %}">
+            <i class="fas fa-user-injured"></i>
+            <span>Mes patients</span>
+        </a>
+
+        <a href="/dashboard/medecin/dossiers"
+            class="nav-item {% if request.endpoint == 'medecin_dossiers' %}active{% endif %}">
+            <i class="fas fa-folder-medical"></i>
+            <span>Dossiers médicaux</span>
+        </a>
+
+        <a href="/dashboard/medecin/consultations"
+            class="nav-item {% if request.endpoint == 'medecin_consultations' %}active{% endif %}">
+            <i class="fas fa-stethoscope"></i>
+            <span>Consultations</span>
+        </a>
+    </div>
+</div>
+
+<div class="py-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Médical
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/medecin/vitaux"
+            class="nav-item {% if request.endpoint == 'medecin_vitaux' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>Paramètres vitaux</span>
+        </a>
+
+        <a href="/dashboard/medecin/ordonnances"
+            class="nav-item {% if request.endpoint == 'medecin_ordonnances' %}active{% endif %}">
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <span>Ordonnances</span>
+        </a>
+
+        <a href="/dashboard/medecin/alertes"
+            class="nav-item {% if request.endpoint == 'medecin_alertes' %}active{% endif %}">
+            <i class="fas fa-bell-medical"></i>
+            <span>Alertes médicales</span>
+            <span id="medecin-alertes-count"
+                class="hidden px-2 py-1 ml-auto text-xs font-medium text-white rounded-full bg-health-critical">0</span>
+        </a>
+
+        <a href="/dashboard/medecin/soins"
+            class="nav-item {% if request.endpoint == 'medecin_soins' %}active{% endif %}">
+            <i class="fas fa-history"></i>
+            <span>Historique des soins</span>
+        </a>
+    </div>
+</div>
+
+<div class="pt-4">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Collaboration
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/medecin/rapports"
+            class="nav-item {% if request.endpoint == 'medecin_rapports' %}active{% endif %}">
+            <i class="fas fa-file-medical"></i>
+            <span>Rapports prestataires</span>
+        </a>
+
+        <a href="/dashboard/medecin/documents"
+            class="nav-item {% if request.endpoint == 'medecin_documents' %}active{% endif %}">
+            <i class="fas fa-notes-medical"></i>
+            <span>Documents médicaux</span>
+        </a>
+    </div>
+</div>

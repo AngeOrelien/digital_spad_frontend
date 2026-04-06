@@ -1,0 +1,254 @@
+{% extends "layout/auth_base.html" %}
+
+{% block title %}SPAD - Connexion{% endblock %}
+
+{% block extra_css %}
+<style>
+    .password-toggle {
+        cursor: pointer;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--neutral-400);
+        transition: color 0.2s ease;
+    }
+
+    .password-toggle:hover {
+        color: var(--spad-primary);
+    }
+
+    .auth-container {
+        background-image: url("{{ url_for('static', filename='images/auth-bg.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+
+    .auth-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0, 143, 168, 0.7)50%, rgba(0, 81, 157, 0.6) 100%);
+        z-index: 1;
+    }
+
+    .auth-container>* {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Animation du formulaire */
+    @keyframes slide-up {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-slide-up {
+        animation: slide-up 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen auth-container">
+    <div class="w-full max-w-md px-4 py-12">
+        <!-- Carte de connexion -->
+        <div class="p-8 shadow-2xl bg-white/95 backdrop-blur-sm rounded-2xl animate-slide-up">
+            <!-- Logo SPAD -->
+            <div class="mb-8 text-center">
+                <a href="{{ url_for('index') }}" class="inline-block transition-transform hover:scale-105">
+                    <div class="flex items-center justify-center mb-0 space-x-3">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SPAD Logo"
+                            class="w-16 h-16">
+                        <div class="text-left">
+                            <span class="text-3xl font-bold text-spad-700 font-display">SPAD</span>
+                            <p class="text-xs text-spad-secondary">Suivi Personnes Âgées Domicile</p>
+                        </div>
+                    </div>
+                </a>
+                <h2 class="mt-4 text-2xl font-bold text-neutral-900 font-display">
+                    Connexion au Portail
+                </h2>
+                <p class="mt-2 text-sm text-neutral-600">
+                    Accédez à votre espace personnel sécurisé
+                </p>
+            </div>
+
+            <!-- Formulaire -->
+            <form class="space-y-6" action="{{ url_for('login') }}" method="POST" id="loginForm">
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block mb-2 text-sm font-medium text-neutral-700">
+                        <i class="mr-2 text-spad-primary fas fa-envelope"></i>Adresse email
+                    </label>
+                    <div class="relative">
+                        <input id="email" name="email" type="email" autocomplete="email" required
+                            class="block w-full px-4 py-3 transition duration-200 border rounded-lg appearance-none text-neutral-900 placeholder-neutral-400 border-neutral-300 focus:outline-none focus:ring-2 focus:ring-spad-primary focus:border-spad-primary sm:text-sm"
+                            placeholder="votre@email.com">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <i class="text-neutral-400 fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mot de passe -->
+                <div>
+                    <label for="password" class="block mb-2 text-sm font-medium text-neutral-700">
+                        <i class="mr-2 text-spad-primary fas fa-lock"></i>Mot de passe
+                    </label>
+                    <div class="relative">
+                        <input id="password" name="password" type="password" autocomplete="current-password" required
+                            class="block w-full px-4 py-3 pr-12 transition duration-200 border rounded-lg appearance-none text-neutral-900 placeholder-neutral-400 border-neutral-300 focus:outline-none focus:ring-2 focus:ring-spad-primary focus:border-spad-primary sm:text-sm"
+                            placeholder="Votre mot de passe">
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i id="eyeIcon" class="text-neutral-400 fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Message d'erreur -->
+                {% if error %}
+                <div class="p-4 border-l-4 border-health-critical bg-red-50 animate-fade-in">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="text-lg text-health-critical fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-800">{{ error }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Options -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox"
+                            class="w-4 h-4 border-2 rounded text-spad-primary border-neutral-300 focus:ring-spad-primary">
+                        <label for="remember-me" class="block ml-2 text-sm text-neutral-700">
+                            Se souvenir de moi
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="{{ url_for('forgot_password') }}"
+                            class="font-medium transition duration-200 text-spad-secondary hover:text-spad-turquoise-700">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bouton de connexion -->
+                <div class="pt-2">
+                    <button type="submit" id="submitBtn"
+                        class="relative flex justify-center w-full px-4 py-3.5 text-sm font-medium text-white transition-all duration-300 border border-transparent rounded-lg shadow-lg group bg-spad-700 hover:bg-spad-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-spad-primary">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i
+                                class="transition duration-300 text-spad-turquoise-200 fas fa-sign-in-alt group-hover:text-white"></i>
+                        </span>
+                        <span id="submitText">Se connecter</span>
+                        <span id="loadingSpinner" class="hidden ml-2">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Séparateur -->
+            <div class="mt-8">
+            </div>
+
+            <!-- Info sécurité -->
+            <div class="p-4 mt-8 border rounded-lg border-spad-turquoise-200 bg-spad-turquoise-50">
+                <div class="flex items-start">
+                    <i class="mt-1 mr-3 text-lg text-spad-secondary fas fa-shield-alt"></i>
+                    <div>
+                        <p class="text-sm text-spad-green-700">
+                            <strong>Connexion sécurisée :</strong> Votre session est cryptée et protégée.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retour accueil -->
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('index') }}"
+                class="inline-flex items-center text-sm font-medium text-white transition duration-200 hover:text-spad-turquoise-200">
+                <i class="mr-2 fas fa-arrow-left"></i>
+                Retour à la page d'accueil
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+            eyeIcon.setAttribute('title', 'Masquer le mot de passe');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+            eyeIcon.setAttribute('title', 'Afficher le mot de passe');
+        }
+    }
+
+    // Form submission
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        submitBtn.disabled = true;
+        submitText.textContent = 'Connexion en cours...';
+        loadingSpinner.classList.remove('hidden');
+
+        // Réinitialiser après 5 secondes au cas où
+        setTimeout(() => {
+            if (submitBtn.disabled) {
+                submitBtn.disabled = false;
+                submitText.textContent = 'Se connecter';
+                loadingSpinner.classList.add('hidden');
+            }
+        }, 5000);
+    });
+
+    // Auto-focus sur le champ email
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('email').focus();
+
+        // Ajouter un titre au bouton eye
+        document.getElementById('eyeIcon').setAttribute('title', 'Afficher le mot de passe');
+    });
+
+    // Animation au chargement
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('.animate-slide-up');
+        form.style.animation = 'slide-up 0.5s ease-out';
+    });
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth/login.js') }}"></script>
+{% endblock %}

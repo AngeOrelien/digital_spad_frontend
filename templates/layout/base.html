@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPAD - {% block title %}Suivi des Personnes Âgées à Domicile{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/tailwindcss.js') }}"></script>
+    <script src="{{ url_for('static', filename='css/custom.css') }}"></script>
+    <!-- Configuration Tailwind inline -->
+    <script src="{{ url_for('static', filename='js/styles.js') }}"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/fontawesome.js') }}"></script>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS personnalisé -->
+    <!-- <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet"> -->
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="min-h-screen font-sans bg-gray-50">
+    {% block body %}{% endblock %}
+
+    <!-- Scripts JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+
+    {% block extra_js %}{% endblock %}
+
+    <!-- Message flash -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div id="flash-messages" class="fixed z-50 space-y-2 bottom-4 right-4">
+        {% for message in messages %}
+        <div class="px-6 py-3 text-white rounded-lg shadow-lg bg-spad-600 animate-fade-in">
+            {{ message }}
+            <button onclick="this.parentElement.remove()" class="ml-4">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        setTimeout(() => {
+            const flash = document.getElementById('flash-messages');
+            if (flash) flash.remove();
+        }, 5000);
+    </script>
+    {% endif %}
+    {% endwith %}
+</body>
+
+</html>

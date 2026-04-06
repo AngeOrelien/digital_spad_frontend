@@ -1,0 +1,351 @@
+{% extends "layout/dashboard_base.html" %}
+
+{% block title %}SPAD - Dashboard Patient{% endblock %}
+
+{% block page_title %}
+<div class="md:flex md:items-center md:justify-between py-4">
+    <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Bonjour, {{ user_name }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Voici votre tableau de bord de suivi médical
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <button type="button"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-spad-500">
+            <i class="fas fa-print mr-2"></i>
+            Imprimer
+        </button>
+        <button type="button"
+            class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-spad-600 hover:bg-spad-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-spad-500">
+            <i class="fas fa-plus mr-2"></i>
+            Nouvelle demande
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-spad-100 flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-spad-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">État de santé</p>
+                    <p class="text-2xl font-semibold text-gray-900">Stable</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Prochains RDV</p>
+                    <p class="text-2xl font-semibold text-gray-900">3</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                        <i class="fas fa-bell text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Alertes</p>
+                    <p class="text-2xl font-semibold text-gray-900">2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-user-md text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Prestataires</p>
+                    <p class="text-2xl font-semibold text-gray-900">2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenu principal -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Colonne gauche -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Prochains rendez-vous -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    <i class="fas fa-calendar-alt text-spad-600 mr-2"></i>
+                    Mes prochains rendez-vous
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Visites à domicile programmées
+                </p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flow-root">
+                    <ul class="-mb-8">
+                        {% for rdv in [
+                        {'date': '2024-03-15', 'heure': '10:00', 'type': 'Visite médecin', 'person': 'Dr. Martin'},
+                        {'date': '2024-03-16', 'heure': '14:30', 'type': 'Kinésithérapie', 'person': 'M. Dubois'},
+                        {'date': '2024-03-18', 'heure': '09:00', 'type': 'Prise de sang', 'person': 'Infirmière'}
+                        ] %}
+                        <li class="mb-8">
+                            <div class="relative pb-8">
+                                <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
+                                    aria-hidden="true"></span>
+                                <div class="relative flex items-start space-x-3">
+                                    <div class="relative">
+                                        <div
+                                            class="h-10 w-10 rounded-full bg-spad-100 flex items-center justify-center ring-8 ring-white">
+                                            <i class="fas fa-calendar text-spad-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div>
+                                            <div class="text-sm">
+                                                <span class="font-medium text-gray-900">{{ rdv.type }}</span>
+                                                <span class="ml-2 text-gray-500">avec {{ rdv.person }}</span>
+                                            </div>
+                                            <p class="mt-0.5 text-sm text-gray-500">
+                                                Le {{ rdv.date }} à {{ rdv.heure }}
+                                            </p>
+                                        </div>
+                                        <div class="mt-2 text-sm text-gray-700">
+                                            <p>Préparer les derniers bilans sanguins</p>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button
+                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-full text-spad-700 bg-spad-100 hover:bg-spad-200">
+                                                <i class="fas fa-info-circle mr-1"></i>
+                                                Détails
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="mt-6 text-center">
+                    <a href="#" class="text-spad-600 hover:text-spad-500 font-medium">
+                        Voir tous les rendez-vous →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mes paramètres vitaux -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    <i class="fas fa-heartbeat text-red-600 mr-2"></i>
+                    Mes paramètres vitaux récents
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Dernières mesures enregistrées
+                </p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl font-bold text-gray-900">12.8</div>
+                        <div class="text-sm text-gray-500">Glycémie</div>
+                        <div class="text-xs text-red-600 mt-1">
+                            <i class="fas fa-exclamation-circle"></i> Élevé
+                        </div>
+                    </div>
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl font-bold text-gray-900">13/8</div>
+                        <div class="text-sm text-gray-500">Tension</div>
+                        <div class="text-xs text-green-600 mt-1">
+                            <i class="fas fa-check-circle"></i> Normal
+                        </div>
+                    </div>
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl font-bold text-gray-900">36.8°</div>
+                        <div class="text-sm text-gray-500">Température</div>
+                        <div class="text-xs text-green-600 mt-1">
+                            <i class="fas fa-check-circle"></i> Normal
+                        </div>
+                    </div>
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl font-bold text-gray-900">72</div>
+                        <div class="text-sm text-gray-500">Pouls</div>
+                        <div class="text-xs text-yellow-600 mt-1">
+                            <i class="fas fa-exclamation-triangle"></i> À surveiller
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <a href="{{ url_for('patient_health') }}" class="text-spad-600 hover:text-spad-500 font-medium">
+                        Voir l'historique complet →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="space-y-8">
+        <!-- Alertes importantes -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-red-200 bg-red-50">
+                <h3 class="text-lg leading-6 font-medium text-red-900">
+                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                    Alertes importantes
+                </h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="space-y-4">
+                    <div class="border-l-4 border-red-400 bg-red-50 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    <span class="font-medium">Glycémie élevée</span> - Consultez votre médecin
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-l-4 border-yellow-400 bg-yellow-50 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <span class="font-medium">Pouls irrégulier</span> - Surveillance requise
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="#" class="text-red-600 hover:text-red-500 font-medium">
+                        Voir toutes les alertes →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mes prestataires -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    <i class="fas fa-user-nurse text-spad-600 mr-2"></i>
+                    Mes prestataires
+                </h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <ul class="divide-y divide-gray-200">
+                    {% for provider in [
+                    {'name': 'Marie Martin', 'role': 'Infirmière', 'phone': '01 23 45 67 89'},
+                    {'name': 'Thomas Bernard', 'role': 'Kinésithérapeute', 'phone': '01 98 76 54 32'}
+                    ] %}
+                    <li class="py-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="h-10 w-10 rounded-full bg-spad-100 flex items-center justify-center">
+                                    <i class="fas fa-user text-spad-600"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ provider.name }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{ provider.role }}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    <i class="fas fa-phone mr-1"></i>{{ provider.phone }}
+                                </p>
+                            </div>
+                            <div>
+                                <button
+                                    class="inline-flex items-center p-1.5 border border-transparent rounded-full text-spad-700 bg-spad-100 hover:bg-spad-200">
+                                    <i class="fas fa-comment-dots"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="mt-4">
+                    <a href="{{ url_for('patient_providers') }}" class="text-spad-600 hover:text-spad-500 font-medium">
+                        Voir tous les prestataires →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents récents -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    <i class="fas fa-file-medical text-green-600 mr-2"></i>
+                    Documents récents
+                </h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <ul class="space-y-3">
+                    {% for doc in [
+                    {'name': 'Ordonnance Dr. Martin', 'date': '2024-03-10', 'type': 'PDF'},
+                    {'name': 'Bilan sanguin', 'date': '2024-03-05', 'type': 'PDF'},
+                    {'name': 'Compte rendu visite', 'date': '2024-03-01', 'type': 'PDF'}
+                    ] %}
+                    <li class="flex items-center justify-between py-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-file-pdf text-red-500 mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ doc.name }}</p>
+                                <p class="text-xs text-gray-500">{{ doc.date }}</p>
+                            </div>
+                        </div>
+                        <button class="text-spad-600 hover:text-spad-500">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="mt-4">
+                    <a href="{{ url_for('patient_documents') }}" class="text-spad-600 hover:text-spad-500 font-medium">
+                        Voir tous les documents →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

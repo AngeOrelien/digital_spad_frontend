@@ -1,0 +1,409 @@
+{% extends "layout/dashboard_base.html" %}
+
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block page_title %}
+<div class="py-4 md:flex md:items-center md:justify-between">
+    <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <i class="mr-2 text-spad-600 fas fa-user-shield"></i>
+            Dashboard Administrateur
+        </h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Vue d'ensemble de la plateforme SPAD
+        </p>
+    </div>
+    <div class="flex mt-4 space-x-3 md:mt-0 md:ml-4">
+        <button type="button"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-spad-500">
+            <i class="mr-2 fas fa-download"></i>
+            Exporter
+        </button>
+        <button type="button"
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm bg-spad-600 hover:bg-spad-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="mr-2 fas fa-plus"></i>
+            Nouveau rapport
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Stats rapides -->
+<div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full">
+                        <i class="text-xl text-spad-600 fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Total utilisateurs</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-users">0</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('admin_users') }}" class="text-sm text-spad-600 hover:text-spad-500">
+                    Voir tous →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full">
+                        <i class="text-xl text-green-600 fas fa-user-injured"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Patients actifs</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="active-patients">0</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('admin_patients') }}" class="text-sm text-green-600 hover:text-green-500">
+                    Voir tous →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full">
+                        <i class="text-xl text-yellow-600 fas fa-user-md"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Personnel santé</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="health-staff">0</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('admin_staff') }}" class="text-sm text-yellow-600 hover:text-yellow-500">
+                    Voir tous →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-hidden bg-white rounded-lg shadow">
+        <div class="p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full">
+                        <i class="text-xl text-red-600 fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Alertes actives</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="active-alerts">0</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ url_for('admin_global_alerts') }}" class="text-sm text-red-600 hover:text-red-500">
+                    Voir toutes →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenu principal -->
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+    <!-- Activité récente -->
+    <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                <i class="mr-2 text-spad-600 fas fa-history"></i>
+                Activité récente
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flow-root">
+                <ul class="-mb-8">
+                    {% for activity in [
+                    {'time': 'Il y a 5 min', 'user': 'Dr. Martin', 'action': 'a créé un rapport médical', 'type':
+                    'medical'},
+                    {'time': 'Il y a 15 min', 'user': 'Marie (Infirmière)', 'action': 'a saisi des paramètres vitaux',
+                    'type': 'vital'},
+                    {'time': 'Il y a 30 min', 'user': 'Jean Dupont', 'action': 's\'est connecté au portail', 'type':
+                    'auth'},
+                    {'time': 'Il y a 2h', 'user': 'Chef Dubois', 'action': 'a assigné un nouveau patient', 'type':
+                    'assignment'},
+                    {'time': 'Il y a 4h', 'user': 'Système', 'action': 'a généré une alerte glycémie', 'type': 'alert'}
+                    ] %}
+                    <li class="mb-8">
+                        <div class="relative pb-8">
+                            {% if not loop.last %}
+                            <span class="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
+                                aria-hidden="true"></span>
+                            {% endif %}
+                            <div class="relative flex items-start space-x-3">
+                                <div class="relative">
+                                    <div class="h-10 w-10 rounded-full 
+                                        {% if activity.type == 'medical' %}bg-blue-100 text-blue-600
+                                        {% elif activity.type == 'vital' %}bg-green-100 text-green-600
+                                        {% elif activity.type == 'auth' %}bg-yellow-100 text-yellow-600
+                                        {% elif activity.type == 'assignment' %}bg-purple-100 text-purple-600
+                                        {% else %}bg-red-100 text-red-600{% endif %}
+                                        flex items-center justify-center ring-8 ring-white">
+                                        <i class="fas 
+                                            {% if activity.type == 'medical' %}fa-file-medical
+                                            {% elif activity.type == 'vital' %}fa-heartbeat
+                                            {% elif activity.type == 'auth' %}fa-sign-in-alt
+                                            {% elif activity.type == 'assignment' %}fa-user-plus
+                                            {% else %}fa-exclamation-triangle{% endif %}"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div>
+                                        <div class="text-sm">
+                                            <span class="font-medium text-gray-900">{{ activity.user }}</span>
+                                            <span class="ml-2 text-gray-500">{{ activity.action }}</span>
+                                        </div>
+                                        <p class="mt-0.5 text-sm text-gray-500">
+                                            {{ activity.time }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="mt-6 text-center">
+                <a href="#" class="font-medium text-spad-600 hover:text-spad-500">
+                    Voir toute l'activité →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertes urgentes -->
+    <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-red-200 sm:px-6 bg-red-50">
+            <h3 class="text-lg font-medium leading-6 text-red-900">
+                <i class="mr-2 text-red-600 fas fa-exclamation-triangle"></i>
+                Alertes urgentes
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="space-y-4">
+                {% for alert in [
+                {'patient': 'Jean Dupont', 'type': 'Glycémie élevée', 'level': 'Critique', 'time': 'Il y a 10 min'},
+                {'patient': 'Marie Martin', 'type': 'Pression artérielle', 'level': 'Haute', 'time': 'Il y a 45 min'},
+                {'patient': 'Pierre Bernard', 'type': 'Traitement manquant', 'level': 'Moyen', 'time': 'Il y a 2h'}
+                ] %}
+                <div class="border-l-4 
+                    {% if alert.level == 'Critique' %}border-red-400 bg-red-50
+                    {% elif alert.level == 'Haute' %}border-orange-400 bg-orange-50
+                    {% else %}border-yellow-400 bg-yellow-50{% endif %} 
+                    p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas 
+                                {% if alert.level == 'Critique' %}fa-exclamation-circle text-red-400
+                                {% elif alert.level == 'Haute' %}fa-exclamation-triangle text-orange-400
+                                {% else %}fa-info-circle text-yellow-400{% endif %}"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium 
+                                {% if alert.level == 'Critique' %}text-red-800
+                                {% elif alert.level == 'Haute' %}text-orange-800
+                                {% else %}text-yellow-800{% endif %}">
+                                {{ alert.type }}
+                            </p>
+                            <p class="text-sm 
+                                {% if alert.level == 'Critique' %}text-red-700
+                                {% elif alert.level == 'Haute' %}text-orange-700
+                                {% else %}text-yellow-700{% endif %}">
+                                Patient: {{ alert.patient }} • {{ alert.time }}
+                            </p>
+                            <div class="mt-2">
+                                <button class="text-xs 
+                                    {% if alert.level == 'Critique' %}text-red-600 hover:text-red-500
+                                    {% elif alert.level == 'Haute' %}text-orange-600 hover:text-orange-500
+                                    {% else %}text-yellow-600 hover:text-yellow-500{% endif %} 
+                                    font-medium">
+                                    Voir les détails
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mt-6">
+                <a href="{{ url_for('admin_global_alerts') }}" class="font-medium text-red-600 hover:text-red-500">
+                    Gérer toutes les alertes →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="grid grid-cols-1 gap-8 mt-8 lg:grid-cols-2">
+    <!-- Utilisateurs par rôle -->
+    <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                <i class="mr-2 text-spad-600 fas fa-chart-pie"></i>
+                Répartition par rôle
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div class="p-4 text-center border rounded-lg">
+                    <div class="text-2xl font-bold text-spad-600" id="patient-count">0</div>
+                    <div class="text-sm text-gray-500">Patients</div>
+                </div>
+                <div class="p-4 text-center border rounded-lg">
+                    <div class="text-2xl font-bold text-green-600" id="provider-count">0</div>
+                    <div class="text-sm text-gray-500">Prestataires</div>
+                </div>
+                <div class="p-4 text-center border rounded-lg">
+                    <div class="text-2xl font-bold text-yellow-600" id="doctor-count">0</div>
+                    <div class="text-sm text-gray-500">Médecins</div>
+                </div>
+                <div class="p-4 text-center border rounded-lg">
+                    <div class="text-2xl font-bold text-purple-600" id="chief-count">0</div>
+                    <div class="text-sm text-gray-500">Chefs secteur</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                <i class="mr-2 text-spad-600 fas fa-bolt"></i>
+                Actions rapides
+            </h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-2 gap-4">
+                <a href="{{ url_for('admin_users') }}"
+                    class="p-4 transition duration-200 border rounded-lg group hover:border-blue-500 hover:bg-blue-50">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 mr-3 bg-blue-100 rounded-full">
+                            <i class="text-spad-600 fas fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 group-hover:text-blue-700">Ajouter utilisateur</p>
+                            <p class="text-xs text-gray-500">Créer un nouveau compte</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="{{ url_for('admin_patients') }}"
+                    class="p-4 transition duration-200 border rounded-lg group hover:border-green-500 hover:bg-green-50">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 mr-3 bg-green-100 rounded-full">
+                            <i class="text-green-600 fas fa-user-injured"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 group-hover:text-green-700">Nouveau patient</p>
+                            <p class="text-xs text-gray-500">Enregistrer un patient</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="{{ url_for('admin_global_alerts') }}"
+                    class="p-4 transition duration-200 border rounded-lg group hover:border-red-500 hover:bg-red-50">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 mr-3 bg-red-100 rounded-full">
+                            <i class="text-red-600 fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 group-hover:text-red-700">Gérer alertes</p>
+                            <p class="text-xs text-gray-500">Voir toutes les alertes</p>
+                        </div>
+                    </div>
+                </a>
+                <a href="{{ url_for('admin_system_settings') }}"
+                    class="p-4 transition duration-200 border rounded-lg group hover:border-purple-500 hover:bg-purple-50">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 mr-3 bg-purple-100 rounded-full">
+                            <i class="text-purple-600 fas fa-cog"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 group-hover:text-purple-700">Paramètres</p>
+                            <p class="text-xs text-gray-500">Configurer le système</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Charger les statistiques depuis l'API
+    async function loadStatistics() {
+        try {
+            // Récupérer les statistiques des utilisateurs
+            const response = await fetch('/api/utilisateurs/statistiques',
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            console.log("response")
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.statistiques) {
+                    const stats = data.statistiques;
+
+                    // Mettre à jour les compteurs
+                    document.getElementById('total-users').textContent = stats.total || 0;
+
+                    // Compter par rôle
+                    const roleStats = stats.par_role || {};
+                    document.getElementById('patient-count').textContent = roleStats.patient || 0;
+                    document.getElementById('provider-count').textContent = roleStats.prestataire || 0;
+                    document.getElementById('doctor-count').textContent = roleStats.medecin || 0;
+                    document.getElementById('chief-count').textContent = roleStats.chef_secteur || 0;
+
+                    // Calculer les patients actifs (simplifié)
+                    document.getElementById('active-patients').textContent = roleStats.patient || 0;
+
+                    // Calculer le personnel santé
+                    const healthStaff = (roleStats.prestataire || 0) + (roleStats.medecin || 0) + (roleStats.chef_secteur || 0);
+                    document.getElementById('health-staff').textContent = healthStaff;
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des statistiques:', error);
+        }
+
+        try {
+            // Récupérer les alertes
+            // const alertResponse = await fetch('/api/alertes/ouvertes');
+            if (alertResponse.ok) {
+                const alertData = await alertResponse.json();
+                if (alertData.success && alertData.alertes) {
+                    document.getElementById('active-alerts').textContent = alertData.alertes.length;
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des alertes:', error);
+        }
+    }
+
+    // Charger les statistiques au chargement de la page
+    document.addEventListener('DOMContentLoaded', loadStatistics);
+
+    // Rafraîchir toutes les 60 secondes
+    setInterval(loadStatistics, 60000);
+</script>
+{% endblock %}

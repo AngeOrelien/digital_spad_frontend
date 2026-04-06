@@ -1,0 +1,128 @@
+/* Style général */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #084298 100%);
+    color: white;
+    margin-top: -1px;
+}
+
+.hero-section h1 {
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Cartes */
+.card {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.15);
+}
+
+/* Authentification */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.auth-card {
+    border: none;
+    border-radius: 15px;
+    border: 1px solid #b3d4fc;
+}
+
+.auth-card .card-header {
+    border-radius: 15px 15px 0 0 !important;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+}
+
+/* Navigation */
+.navbar {
+    box-shadow: 0 2px 10px rgba(13, 110, 253, 0.1);
+    background-color: white;
+}
+
+/* Boutons */
+.btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0b5ed7 0%, #094db1 100%);
+}
+
+/* Dashboard */
+.sidebar {
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 56px);
+    border-right: 1px solid #dee2e6;
+}
+
+.sidebar .nav-link {
+    color: #495057;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+}
+
+/* Alertes */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.alert-primary {
+    background-color: #cfe2ff;
+    color: #084298;
+    border-left: 4px solid #0d6efd;
+}
+
+/* Couleurs supplémentaires pour une palette bleue cohérente */
+.bg-blue-light {
+    background-color: #e3f2fd !important;
+}
+
+.bg-blue-medium {
+    background-color: #bbdefb !important;
+}
+
+.bg-blue-dark {
+    background-color: #0a58ca !important;
+}
+
+.text-blue {
+    color: #0d6efd !important;
+}
+
+.border-blue {
+    border-color: #0d6efd !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section .col-lg-6:last-child {
+        margin-top: 2rem;
+    }
+
+    .auth-card {
+        margin: 1rem;
+    }
+}

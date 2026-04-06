@@ -1,0 +1,95 @@
+<div class="pb-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Secteur
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/chef-secteur/vue-globale"
+            class="nav-item {% if request.endpoint == 'chef_secteur_vue_globale' %}active{% endif %}">
+            <i class="fas fa-chart-pie"></i>
+            <span>Vue globale</span>
+        </a>
+
+        <a href="/dashboard/chef-secteur/prestataires"
+            class="nav-item {% if request.endpoint == 'chef_secteur_prestataires' %}active{% endif %}">
+            <i class="fas fa-users-cog"></i>
+            <span>Gestion prestataires</span>
+        </a>
+
+        <a href="/dashboard/chef-secteur/patients"
+            class="nav-item {% if request.endpoint == 'chef_secteur_patients' %}active{% endif %}">
+            <i class="fas fa-users-medical"></i>
+            <span>Patients du secteur</span>
+        </a>
+    </div>
+</div>
+
+<div class="py-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Planning & Coordination
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/chef-secteur/planning"
+            class="nav-item {% if request.endpoint == 'chef_secteur_planning' %}active{% endif %}">
+            <i class="fas fa-calendar-week"></i>
+            <span>Planification</span>
+        </a>
+
+        <a href="/dashboard/chef-secteur/interventions"
+            class="nav-item {% if request.endpoint == 'chef_secteur_interventions' %}active{% endif %}">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Suivi interventions</span>
+        </a>
+
+        <a href="/dashboard/chef-secteur/affectations"
+            class="nav-item {% if request.endpoint == 'chef_secteur_affectations' %}active{% endif %}">
+            <i class="fas fa-user-check"></i>
+            <span>Affectations patients</span>
+        </a>
+    </div>
+</div>
+
+<div class="py-4 border-b border-spad-700">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Santé & Rapports
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/chef-secteur/rapports"
+            class="nav-item {% if request.endpoint == 'chef_secteur_rapports' %}active{% endif %}">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Rapports de santé</span>
+        </a>
+
+        <a href="/dashboard/chef-secteur/alertes"
+            class="nav-item {% if request.endpoint == 'chef_secteur_alertes' %}active{% endif %}">
+            <i class="fas fa-exclamation"></i>
+            <span>Gestion des alertes</span>
+            <span id="chef-alertes-count"
+                class="hidden px-2 py-1 ml-auto text-xs font-medium text-white rounded-full bg-health-critical">0</span>
+        </a>
+
+        <a href="/dashboard/chef-secteur/vitaux"
+            class="nav-item {% if request.endpoint == 'chef_secteur_vitaux' %}active{% endif %}">
+            <i class="fas fa-heartbeat"></i>
+            <span>Évaluation paramètres</span>
+        </a>
+    </div>
+</div>
+
+<div class="pt-4">
+    <h3 class="px-3 mb-2 text-xs font-semibold tracking-wider uppercase text-spad-400">
+        Statistiques
+    </h3>
+    <div class="space-y-1">
+        <a href="/dashboard/chef-secteur/statistiques"
+            class="nav-item {% if request.endpoint == 'chef_secteur_statistiques' %}active{% endif %}">
+            <i class="fas fa-chart-bar"></i>
+            <span>Statistiques secteur</span>
+        </a>
+
+        <a href="/dashboard/chef-secteur/activite"
+            class="nav-item {% if request.endpoint == 'chef_secteur_activite' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i>
+            <span>Activité du secteur</span>
+        </a>
+    </div>
+</div>
